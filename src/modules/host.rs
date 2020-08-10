@@ -11,6 +11,8 @@ pub struct Host<S: HostScheme> {
 pub trait HostScheme {
 	const HOSTNAME_FG: Color;
 	const HOSTNAME_BG: Color;
+	const SSH_FG: Color;
+	const SSH_BG: Color;
 }
 
 impl<S: HostScheme> Host<S> {
@@ -27,11 +29,15 @@ impl<S: HostScheme> Module for Host<S> {
 	fn append_segments(&mut self, segments: &mut Vec<Segment>) -> R<()> {
 		if self.show_on_local || utils::is_remote_shell() {
 			if let Ok(host) = hostname::get() {
-				segments.push(Segment::simple(
-					format!(" {} ", host.to_str().unwrap()),
+				let host_parts: Vec<&str> = host.to_str().unwrap().split('.').collect();
+				segments.push(Segment::nosep(
+					format!(" {} ", host_parts[0]),
 					S::HOSTNAME_FG,
 					S::HOSTNAME_BG,
 				));
+				if utils::is_remote_shell() {
+					segments.push(Segment::nosep("\u{A7FF} ", S::SSH_FG, S::SSH_BG));
+				}
 			}
 		}
 

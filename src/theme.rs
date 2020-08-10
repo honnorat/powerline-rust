@@ -34,8 +34,10 @@ impl UserScheme for SimpleTheme {
 }
 
 impl HostScheme for SimpleTheme {
-	const HOSTNAME_BG: Color = Color(238);
-	const HOSTNAME_FG: Color = Color(250);
+	const HOSTNAME_BG: Color = Color(235);
+	const HOSTNAME_FG: Color = Color(221);
+    const SSH_BG: Color = Color(166); 	// medium orange
+    const SSH_FG: Color = Color(254);	// very-light grey
 }
 
 impl ReadOnlyScheme for SimpleTheme {
@@ -58,10 +60,10 @@ impl GitScheme for SimpleTheme {
 	const GIT_CONFLICTED_FG: Color = Color(15);
 	const GIT_NOTSTAGED_BG: Color = Color(130);
 	const GIT_NOTSTAGED_FG: Color = Color(15);
-	const GIT_REPO_CLEAN_BG: Color = Color(148);
-	const GIT_REPO_CLEAN_FG: Color = Color(0);
-	const GIT_REPO_DIRTY_BG: Color = Color(161);
-	const GIT_REPO_DIRTY_FG: Color = Color(15);
+	const GIT_REPO_CLEAN_BG: Color = Color(22);  	// dark green
+	const GIT_REPO_CLEAN_FG: Color = Color(254);	// very-light grey
+	const GIT_REPO_DIRTY_BG: Color = Color(160);	// red
+	const GIT_REPO_DIRTY_FG: Color = Color(254);	// very-light grey
 	const GIT_STAGED_BG: Color = Color(22);
 	const GIT_STAGED_FG: Color = Color(15);
 	const GIT_UNTRACKED_BG: Color = Color(52);
@@ -69,6 +71,6 @@ impl GitScheme for SimpleTheme {
 }
 
 impl VirtualEnvScheme for SimpleTheme {
-	const PYVENV_BG: Color = Color(42);
-	const PYVENV_FG: Color = Color(0);
+	const PYVENV_BG: Color = Color(31);
+	const PYVENV_FG: Color = Color(254);
 }

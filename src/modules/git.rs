@@ -95,7 +95,7 @@ impl<S: GitScheme> Module for Git<S> {
 			(S::GIT_REPO_CLEAN_FG, S::GIT_REPO_CLEAN_BG)
 		};
 
-		segments.push(Segment::simple(format!(" {} ", stats.branch_name), branch_fg, branch_bg));
+		segments.push(Segment::simple(format!("  {} ", stats.branch_name), branch_fg, branch_bg));
 
 		let mut add_elem = |count, symbol, fg, bg| {
 			if count > 1 {
@@ -109,7 +109,7 @@ impl<S: GitScheme> Module for Git<S> {
 		add_elem(stats.behind, '\u{2B07}', S::GIT_BEHIND_FG, S::GIT_BEHIND_BG);
 		add_elem(stats.staged, '\u{2714}', S::GIT_STAGED_FG, S::GIT_STAGED_BG);
 		add_elem(stats.non_staged, '\u{270E}', S::GIT_NOTSTAGED_FG, S::GIT_NOTSTAGED_BG);
-		add_elem(stats.untracked, '\u{2753}', S::GIT_UNTRACKED_FG, S::GIT_UNTRACKED_BG);
+		add_elem(stats.untracked, '?', S::GIT_UNTRACKED_FG, S::GIT_UNTRACKED_BG);
 		add_elem(stats.conflicted, '\u{273C}', S::GIT_CONFLICTED_FG, S::GIT_CONFLICTED_BG);
 
 		Ok(())

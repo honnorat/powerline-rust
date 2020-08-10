@@ -23,7 +23,23 @@ impl Segment {
 	}
 
 	pub fn special<S: Into<String>>(val: S, fg: Color, bg: Color, sep: char, sep_col: Color) -> Segment {
-		Segment { val: val.into(), fg: fg.into_fg(), bg: bg.into_bg(), sep, sep_col: sep_col.into_fg() }
+		Segment {
+			val: val.into(),
+			fg: fg.into_fg(),
+			bg: bg.into_bg(),
+			sep,
+			sep_col: sep_col.into_fg(),
+		}
+	}
+
+	pub fn nosep<S: Into<String>>(val: S, fg: Color, bg: Color) -> Segment {
+		Segment {
+			val: val.into(),
+			fg: fg.into_fg(),
+			bg: bg.into_bg(),
+			sep: '\u{0000}',
+			sep_col: fg.into_fg(),
+		}
 	}
 }
 

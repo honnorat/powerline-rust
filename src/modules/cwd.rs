@@ -2,6 +2,7 @@ use std::{env, marker::PhantomData, path};
 
 use super::Module;
 use crate::{terminal::Color, Segment, R};
+extern crate dirs;
 
 pub struct Cwd<S: CwdScheme> {
 	max_length: usize,
@@ -47,7 +48,7 @@ impl<S: CwdScheme> Module for Cwd<S> {
 
 		let mut cwd = current_dir.to_str().unwrap();
 
-		if let Some(home_path) = env::home_dir() {
+		if let Some(home_path) = dirs::home_dir() {
 			let home_str = home_path.to_str().unwrap();
 
 			if cwd.starts_with(home_str) {
