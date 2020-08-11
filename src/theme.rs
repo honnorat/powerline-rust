@@ -15,7 +15,7 @@ impl CmdScheme for SimpleTheme {
 
 impl CwdScheme for SimpleTheme {
 	const CWD_FG: Color = Color(254);
-	const HOME_BG: Color = Color(31);
+	const HOME_BG: Color = Color(25);
 	const HOME_FG: Color = Color(15);
 	const PATH_BG: Color = Color(237);
 	const PATH_FG: Color = Color(250);
@@ -60,11 +60,11 @@ impl GitScheme for SimpleTheme {
 	const GIT_CONFLICTED_FG: Color = Color(15);
 	const GIT_NOTSTAGED_BG: Color = Color(130);
 	const GIT_NOTSTAGED_FG: Color = Color(15);
-	const GIT_REPO_CLEAN_BG: Color = Color(22);  	// dark green
+	const GIT_REPO_CLEAN_BG: Color = Color(28);  	// dark green
 	const GIT_REPO_CLEAN_FG: Color = Color(254);	// very-light grey
 	const GIT_REPO_DIRTY_BG: Color = Color(160);	// red
 	const GIT_REPO_DIRTY_FG: Color = Color(254);	// very-light grey
-	const GIT_STAGED_BG: Color = Color(22);
+	const GIT_STAGED_BG: Color = Color(28);
 	const GIT_STAGED_FG: Color = Color(15);
 	const GIT_UNTRACKED_BG: Color = Color(52);
 	const GIT_UNTRACKED_FG: Color = Color(15);
