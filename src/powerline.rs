@@ -37,7 +37,7 @@ impl Segment {
 			val: val.into(),
 			fg: fg.into_fg(),
 			bg: bg.into_bg(),
-			sep: '\u{0000}',
+			sep: '\u{200D}',
 			sep_col: fg.into_fg(),
 		}
 	}
