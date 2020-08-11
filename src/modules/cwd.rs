@@ -34,7 +34,7 @@ macro_rules! append_cwd_segments {
 				format!(" {} ", val),
 				S::PATH_FG,
 				S::PATH_BG,
-				'\u{E0B1}',
+				Some('\u{E0B1}'),
 				S::SEPARATOR_FG,
 			));
 			}
@@ -70,7 +70,7 @@ impl<S: CwdScheme> Module for Cwd<S> {
 				" \u{2026} ",
 				S::PATH_FG,
 				S::PATH_BG,
-				'\u{E0B1}',
+				Some('\u{E0B1}'),
 				S::SEPARATOR_FG,
 			));
 			append_cwd_segments!(segments, end);
@@ -85,7 +85,7 @@ impl<S: CwdScheme> Module for Cwd<S> {
 			}
 
 			last.fg = S::CWD_FG.into_fg();
-			last.sep = '\u{E0B0}';
+			last.sep = Some('\u{E0B0}');
 			last.sep_col = last.bg.transpose();
 		}
 
