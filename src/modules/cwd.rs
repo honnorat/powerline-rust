@@ -52,7 +52,13 @@ impl<S: CwdScheme> Module for Cwd<S> {
 			let home_str = home_path.to_str().unwrap();
 
 			if cwd.starts_with(home_str) {
-				segments.push(Segment::simple(format!(" {} ", S::CWD_HOME_SYMBOL), S::HOME_FG, S::HOME_BG));
+				segments.push(Segment::special(
+					format!(" {} ", S::CWD_HOME_SYMBOL),
+					S::HOME_FG,
+					S::HOME_BG,
+					Some('\u{E0B1}'),
+					S::SEPARATOR_FG,
+				));
 				cwd = &cwd[home_str.len()..]
 			}
 		}
