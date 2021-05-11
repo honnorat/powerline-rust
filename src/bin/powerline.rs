@@ -5,7 +5,7 @@ use powerline::{modules::*, theme::SimpleTheme};
 #[cfg(feature = "time")]
 use powerline::modules::Time;
 
-fn main() -> powerline::R<()> {
+fn main() {
 	let mut prompt = powerline::Powerline::new();
 
 	#[cfg(feature = "time")]
@@ -20,6 +20,5 @@ fn main() -> powerline::R<()> {
 	prompt.add_module(Cmd::<SimpleTheme>::with_status(true))?;
 	prompt.add_module(ExitCode::<SimpleTheme>::new())?;
 
-	println!("{}", prompt);
-	Ok(())
+	println!("{} ", prompt);
 }

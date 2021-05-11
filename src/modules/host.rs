@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use super::Module;
-use crate::{terminal::Color, utils, Segment, R};
+use crate::{utils, Color, Powerline, Style};
 
 pub struct Host<S: HostScheme> {
 	show_on_local: bool,
@@ -26,21 +26,11 @@ impl<S: HostScheme> Host<S> {
 }
 
 impl<S: HostScheme> Module for Host<S> {
-	fn append_segments(&mut self, segments: &mut Vec<Segment>) -> R<()> {
+	fn append_segments(&mut self, powerline: &mut Powerline) {
 		if self.show_on_local || utils::is_remote_shell() {
 			if let Ok(host) = hostname::get() {
-				let host_parts: Vec<&str> = host.to_str().unwrap().split('.').collect();
-				segments.push(Segment::nosep(
-					format!(" {} ", host_parts[0]),
-					S::HOSTNAME_FG,
-					S::HOSTNAME_BG,
-				));
-				if utils::is_remote_shell() {
-					segments.push(Segment::nosep("\u{A7FF} ", S::SSH_FG, S::SSH_BG));
-				}
+				powerline.add_segment(host.to_str().unwrap(), Style::simple(S::HOSTNAME_FG, S::HOSTNAME_BG));
 			}
 		}
-
-		Ok(())
 	}
 }
