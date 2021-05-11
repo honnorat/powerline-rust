@@ -1,15 +1,15 @@
 extern crate powerline;
 
-use powerline::{modules::*, theme::SimpleTheme};
-
 #[cfg(feature = "time")]
 use powerline::modules::Time;
+use powerline::modules::*;
+use powerline::theme::SimpleTheme;
 
 fn main() {
-	let mut prompt = powerline::Powerline::new();
+    let mut prompt = powerline::Powerline::new();
 
-	#[cfg(feature = "time")]
-	prompt.add_module(Time::<SimpleTheme>::with_time_format("%H:%M:%S"))?;
+    #[cfg(feature = "time")]
+    prompt.add_module(Time::<SimpleTheme>::with_time_format("%H:%M:%S"))?;
 
 	prompt.add_module(Host::<SimpleTheme>::new())?;
 	prompt.add_module(User::<SimpleTheme>::new())?;
@@ -20,5 +20,5 @@ fn main() {
 	prompt.add_module(Cmd::<SimpleTheme>::with_status(true))?;
 	prompt.add_module(ExitCode::<SimpleTheme>::new())?;
 
-	println!("{} ", prompt);
+    println!("{} ", prompt);
 }
