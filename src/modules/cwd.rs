@@ -51,7 +51,10 @@ impl<S: CwdScheme> Module for Cwd<S> {
 
         if let Ok(home_str) = env::var("HOME") {
             if cwd.starts_with(&home_str) {
-                powerline.add_segment(S::CWD_HOME_SYMBOL, Style::simple(S::HOME_FG, S::HOME_BG));
+                powerline.add_segment(
+                    S::CWD_HOME_SYMBOL,
+                    Style::special(S::PATH_FG, S::PATH_BG, '\u{E0B1}', S::SEPARATOR_FG)
+                );
                 cwd = &cwd[home_str.len()..]
             }
         }
