@@ -9,10 +9,10 @@ pub struct Host<S: HostScheme> {
 }
 
 pub trait HostScheme {
-	const HOSTNAME_FG: Color;
-	const HOSTNAME_BG: Color;
-	const SSH_FG: Color;
-	const SSH_BG: Color;
+    const HOSTNAME_FG: Color;
+    const HOSTNAME_BG: Color;
+    const SSH_FG: Color;
+    const SSH_BG: Color;
 }
 
 impl<S: HostScheme> Host<S> {

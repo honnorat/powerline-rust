@@ -32,10 +32,10 @@ impl UserScheme for SimpleTheme {
 }
 
 impl HostScheme for SimpleTheme {
-	const HOSTNAME_BG: Color = Color(235);
-	const HOSTNAME_FG: Color = Color(221);
-    const SSH_BG: Color = Color(166); 	// medium orange
-    const SSH_FG: Color = Color(254);	// very-light grey
+    const HOSTNAME_BG: Color = Color(235);
+    const HOSTNAME_FG: Color = Color(221);
+    const SSH_BG: Color = Color(166);   // medium orange
+    const SSH_FG: Color = Color(254);   // very-light grey
 }
 
 impl ReadOnlyScheme for SimpleTheme {
@@ -50,25 +50,25 @@ impl TimeScheme for SimpleTheme {
 }
 
 impl GitScheme for SimpleTheme {
-	const GIT_AHEAD_BG: Color = Color(240);
-	const GIT_AHEAD_FG: Color = Color(250);
-	const GIT_BEHIND_BG: Color = Color(240);
-	const GIT_BEHIND_FG: Color = Color(250);
-	const GIT_CONFLICTED_BG: Color = Color(9);
-	const GIT_CONFLICTED_FG: Color = Color(15);
-	const GIT_NOTSTAGED_BG: Color = Color(130);
-	const GIT_NOTSTAGED_FG: Color = Color(15);
-	const GIT_REPO_CLEAN_BG: Color = Color(28);  	// dark green
-	const GIT_REPO_CLEAN_FG: Color = Color(254);	// very-light grey
-	const GIT_REPO_DIRTY_BG: Color = Color(160);	// red
-	const GIT_REPO_DIRTY_FG: Color = Color(254);	// very-light grey
-	const GIT_STAGED_BG: Color = Color(28);
-	const GIT_STAGED_FG: Color = Color(15);
-	const GIT_UNTRACKED_BG: Color = Color(52);
-	const GIT_UNTRACKED_FG: Color = Color(15);
+    const GIT_AHEAD_BG: Color = Color(240);
+    const GIT_AHEAD_FG: Color = Color(250);
+    const GIT_BEHIND_BG: Color = Color(240);
+    const GIT_BEHIND_FG: Color = Color(250);
+    const GIT_CONFLICTED_BG: Color = Color(9);
+    const GIT_CONFLICTED_FG: Color = Color(15);
+    const GIT_NOTSTAGED_BG: Color = Color(130);
+    const GIT_NOTSTAGED_FG: Color = Color(15);
+    const GIT_REPO_CLEAN_BG: Color = Color(28);     // dark green
+    const GIT_REPO_CLEAN_FG: Color = Color(254);    // very-light grey
+    const GIT_REPO_DIRTY_BG: Color = Color(160);    // red
+    const GIT_REPO_DIRTY_FG: Color = Color(254);    // very-light grey
+    const GIT_STAGED_BG: Color = Color(28);
+    const GIT_STAGED_FG: Color = Color(15);
+    const GIT_UNTRACKED_BG: Color = Color(52);
+    const GIT_UNTRACKED_FG: Color = Color(15);
 }
 
 impl VirtualEnvScheme for SimpleTheme {
-	const PYVENV_BG: Color = Color(31);
-	const PYVENV_FG: Color = Color(254);
+    const PYVENV_BG: Color = Color(31);
+    const PYVENV_FG: Color = Color(254);
 }
