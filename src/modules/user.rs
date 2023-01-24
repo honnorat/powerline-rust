@@ -30,7 +30,10 @@ impl<S: UserScheme> Module for User<S> {
             let user = users::get_user_by_uid(users::get_current_uid()).unwrap();
             let bg = if user.uid() == 0 { S::USERNAME_ROOT_BG } else { S::USERNAME_BG };
 
-            powerline.add_segment(user.name().to_str().unwrap(), Style::simple(S::USERNAME_FG, bg));
+            powerline.add_short_segment(
+                format!("{} ", user.name().to_str().unwrap()),
+                Style::simple(S::USERNAME_FG, bg)
+            );
         }
     }
 }

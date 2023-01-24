@@ -95,7 +95,7 @@ impl<S: GitScheme> Module for Git<S> {
             (S::GIT_REPO_CLEAN_FG, S::GIT_REPO_CLEAN_BG)
         };
 
-        powerline.add_segment(stats.branch_name, Style::simple(branch_fg, branch_bg));
+        powerline.add_segment(format!(" {}", stats.branch_name), Style::simple(branch_fg, branch_bg));
 
         let mut add_elem = |count: u32, symbol, fg, bg| match count.cmp(&1) {
             Ordering::Equal => powerline.add_segment(symbol, Style::simple(fg, bg)),
@@ -103,11 +103,11 @@ impl<S: GitScheme> Module for Git<S> {
             Ordering::Less => (),
         };
 
-		add_elem(stats.ahead, '\u{2B06}', S::GIT_AHEAD_FG, S::GIT_AHEAD_BG);
-		add_elem(stats.behind, '\u{2B07}', S::GIT_BEHIND_FG, S::GIT_BEHIND_BG);
-		add_elem(stats.staged, '\u{2714}', S::GIT_STAGED_FG, S::GIT_STAGED_BG);
-		add_elem(stats.non_staged, '\u{270E}', S::GIT_NOTSTAGED_FG, S::GIT_NOTSTAGED_BG);
-		add_elem(stats.untracked, '?', S::GIT_UNTRACKED_FG, S::GIT_UNTRACKED_BG);
-		add_elem(stats.conflicted, '\u{273C}', S::GIT_CONFLICTED_FG, S::GIT_CONFLICTED_BG);
-	}
+        add_elem(stats.ahead, '\u{2B06}', S::GIT_AHEAD_FG, S::GIT_AHEAD_BG);
+        add_elem(stats.behind, '\u{2B07}', S::GIT_BEHIND_FG, S::GIT_BEHIND_BG);
+        add_elem(stats.staged, '\u{2714}', S::GIT_STAGED_FG, S::GIT_STAGED_BG);
+        add_elem(stats.non_staged, '\u{270E}', S::GIT_NOTSTAGED_FG, S::GIT_NOTSTAGED_BG);
+        add_elem(stats.untracked, '?', S::GIT_UNTRACKED_FG, S::GIT_UNTRACKED_BG);
+        add_elem(stats.conflicted, '\u{273C}', S::GIT_CONFLICTED_FG, S::GIT_CONFLICTED_BG);
+    }
 }

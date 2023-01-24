@@ -16,6 +16,10 @@ impl Style {
         Style { fg: fg.into(), bg: bg.into(), sep: '\u{E0B0}', sep_fg: bg.into() }
     }
 
+    pub fn nosep(fg: Color, bg: Color) -> Style {
+        Style { fg: fg.into(), bg: bg.into(), sep: ' ', sep_fg: bg.into() }
+    }
+
     pub fn special(fg: Color, bg: Color, sep: char, sep_fg: Color) -> Style {
         Style { fg: fg.into(), bg: bg.into(), sep, sep_fg: sep_fg.into() }
     }

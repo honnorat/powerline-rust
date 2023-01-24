@@ -13,7 +13,7 @@ impl CmdScheme for SimpleTheme {
 
 impl CwdScheme for SimpleTheme {
     const CWD_FG: Color = Color(254);
-    const HOME_BG: Color = Color(31);
+    const HOME_BG: Color = Color(25);
     const HOME_FG: Color = Color(15);
     const PATH_BG: Color = Color(237);
     const PATH_FG: Color = Color(250);
