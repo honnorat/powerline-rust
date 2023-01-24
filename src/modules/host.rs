@@ -29,10 +29,11 @@ impl<S: HostScheme> Module for Host<S> {
     fn append_segments(&mut self, powerline: &mut Powerline) {
         if self.show_on_local || utils::is_remote_shell() {
             if let Ok(host) = hostname::get() {
+                let host_parts: Vec<&str> = host.to_str().unwrap().split('.').collect();
                 if utils::is_remote_shell() {
                     powerline.add_short_segment("\u{108AA}\u{00A0}", Style::simple(S::SSH_FG, S::SSH_BG));
                 }
-                powerline.add_segment(host.to_str().unwrap(), Style::nosep(S::HOSTNAME_FG, S::HOSTNAME_BG));
+                powerline.add_segment(host_parts[0], Style::nosep(S::HOSTNAME_FG, S::HOSTNAME_BG));
             }
         }
     }
