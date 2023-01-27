@@ -7,7 +7,7 @@ pub struct SimpleTheme;
 impl CmdScheme for SimpleTheme {
     const CMD_FAILED_BG: Color = Color(161);
     const CMD_FAILED_FG: Color = Color(15);
-    const CMD_PASSED_BG: Color = Color(236);
+    const CMD_PASSED_BG: Color = Color(233);
     const CMD_PASSED_FG: Color = Color(15);
 }
 
@@ -32,7 +32,7 @@ impl UserScheme for SimpleTheme {
 }
 
 impl HostScheme for SimpleTheme {
-    const HOSTNAME_BG: Color = Color(235);
+    const HOSTNAME_BG: Color = Color(233);
     const HOSTNAME_FG: Color = Color(221);
     const SSH_BG: Color = Color(166);   // medium orange
     const SSH_FG: Color = Color(254);   // very-light grey
