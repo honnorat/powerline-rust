@@ -27,7 +27,7 @@ impl<S: UserScheme> User<S> {
 impl<S: UserScheme> Module for User<S> {
     fn append_segments(&mut self, powerline: &mut Powerline) {
         if self.show_on_local || utils::is_remote_shell() {
-            let user = users::get_user_by_uid(users::get_current_uid()).unwrap();
+            let user = uzers::get_user_by_uid(uzers::get_current_uid()).unwrap();
             let bg = if user.uid() == 0 { S::USERNAME_ROOT_BG } else { S::USERNAME_BG };
 
             powerline.add_short_segment(
