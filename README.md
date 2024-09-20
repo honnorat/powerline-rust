@@ -10,19 +10,28 @@ Although, similar results **can be archived** by **customization**.
 There is a demand to recompile every time while customizing, but you change your prompt only once upon a time. I think performance beneficence is worth it.
 
 With default settings `powerline-rust` uses `libgit` for git prompt. Unfortunately results vary from system to system so if you want every last bit of a performance you can try disabling this feature and benchmarking.
-## Advantages 
+## Advantages
 - blazing fast (less than 0.010s)
 - only necessary dependencies
 - runs git backend only when needed (huge time improvements in directories not in git tree)
 - optional caching git results in memory or file
 
-## Simple installation 
+## Simple installation
+
+To clone this repository on [Radicle](https://radicle.xyz), simply run:
+
+```bash
+rad clone rad://z2FDVfqYkNwYQ3k1uHq3dHSx2xYXm
+```
+
+With Git:
+
 ```bash
 git clone https://github.com/cirho/powerline-rust
 cd powerline-rust
-# bash shell 
+# bash shell
 cargo install --path .
-# zsh shell 
+# zsh shell
 cargo install --path . --no-default-features --features=zsh-shell,libgit
 # fish shell
 cargo install --path . --no-default-features --features=bare-shell,libgit
@@ -98,8 +107,8 @@ Enables optimizations for your specific processor.
 ```bash
 RUSTFLAGS="-C target-cpu=native" cargo ...
 ```
-### Cache untracked files 
-Git module can be slower on repos with big number of untracked files. Read about caching untracked files  [here](https://git-scm.com/docs/git-update-index). 
+### Cache untracked files
+Git module can be slower on repos with big number of untracked files. Read about caching untracked files  [here](https://git-scm.com/docs/git-update-index).
 
 ### Custom theme
 
