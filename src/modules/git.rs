@@ -66,7 +66,7 @@ impl GitStats {
 fn find_git_dir() -> Option<PathBuf> {
     let mut git_dir = env::current_dir().unwrap();
     loop {
-        git_dir.push(".git/");
+        git_dir.push(".git");
 
         if git_dir.exists() {
             git_dir.pop();
