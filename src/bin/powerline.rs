@@ -9,7 +9,7 @@ fn main() {
     let mut prompt = powerline::Powerline::new();
 
     #[cfg(feature = "time")]
-    prompt.add_module(Time::<SimpleTheme>::with_time_format("%H:%M:%S"))?;
+    prompt.add_module(Time::<SimpleTheme>::with_time_format("%H:%M:%S"));
 
     prompt.add_module(Host::<SimpleTheme>::new());
     prompt.add_module(User::<SimpleTheme>::new());
@@ -19,6 +19,7 @@ fn main() {
     prompt.add_module(ReadOnly::<SimpleTheme>::new());
     prompt.add_module(Cwd::<SimpleTheme>::new(45, 4, false));
     prompt.add_module(Cmd::<SimpleTheme>::with_status(true));
+    prompt.add_module(Jobs::<SimpleTheme>::new());
     prompt.add_module(ExitCode::<SimpleTheme>::new());
 
     println!("{} ", prompt);

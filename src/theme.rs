@@ -38,6 +38,11 @@ impl HostScheme for SimpleTheme {
     const SSH_FG: Color = Color(254);   // very-light grey
 }
 
+impl JobsScheme for SimpleTheme {
+    const JOBS_BG: Color = Color(24);     // marine
+    const JOBS_FG: Color = Color(254);    // very-light grey
+}
+
 impl ReadOnlyScheme for SimpleTheme {
     const READONLY_BG: Color = Color(124);
     const READONLY_FG: Color = Color(254);

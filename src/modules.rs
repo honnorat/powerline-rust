@@ -5,6 +5,7 @@ mod cwd;
 mod exit_code;
 mod git;
 mod host;
+mod jobs;
 mod readonly;
 mod user;
 mod venv;
@@ -17,6 +18,7 @@ pub use cwd::{Cwd, CwdScheme};
 pub use exit_code::{ExitCode, ExitCodeScheme};
 pub use git::{Git, GitScheme};
 pub use host::{Host, HostScheme};
+pub use jobs::{Jobs, JobsScheme};
 pub use readonly::{ReadOnly, ReadOnlyScheme};
 #[cfg(feature = "time")]
 pub use time::{Time, TimeScheme};
