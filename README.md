@@ -42,7 +42,7 @@ Make sure you have executable in `$PATH`.
 ```bash
 function _update_ps1() {
     local __RC=$?;
-    PS1="$(NUM_JOBS=$(jobs -rp | wc -l) powerline $__RC)" ;
+    PS1="$(NUM_JOBS=$(jobs | grep -v " Done " | wc -l) powerline $__RC)" ;
 }
 
 if [ "$TERM" != "linux" ]; then
