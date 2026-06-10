@@ -6,17 +6,17 @@ use std::path::PathBuf;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-#[cfg(not(feature = "libgit"))]
+#[cfg(not(feature = "gitoxide"))]
 mod process;
 
-#[cfg(not(feature = "libgit"))]
+#[cfg(not(feature = "gitoxide"))]
 use process as internal;
 
-#[cfg(feature = "libgit")]
-mod libgit;
+#[cfg(feature = "gitoxide")]
+mod gitoxide;
 
-#[cfg(feature = "libgit")]
-use libgit as internal;
+#[cfg(feature = "gitoxide")]
+use gitoxide as internal;
 
 pub struct Git<S> {
     scheme: PhantomData<S>,
