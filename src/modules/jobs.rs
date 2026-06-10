@@ -20,10 +20,13 @@ impl<S: JobsScheme> Jobs<S> {
 }
 
 impl<S: JobsScheme> Module for Jobs<S> {
+    /// Read `$NUM_JOBS` (set by the shell wrapper from the `jobs` builtin) and render
+    /// a segment unless it is equal to "0".
     fn append_segments(&mut self, powerline: &mut Powerline) {
         if let Ok(job_count) = env::var("NUM_JOBS") {
             if job_count != "0" {
                 powerline.add_segment(job_count, Style::simple(S::JOBS_FG, S::JOBS_BG))
             }
         }
-}}
+    }
+}

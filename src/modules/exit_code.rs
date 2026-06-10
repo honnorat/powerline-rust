@@ -20,11 +20,10 @@ impl<S: ExitCodeScheme> ExitCode<S> {
 }
 
 impl<S: ExitCodeScheme> Module for ExitCode<S> {
+    /// Show the previous command's exit code (passed as `argv[1]`) when non-zero.
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        if let Some(exit_code) = env::args().nth(1).as_deref() {
-            if exit_code != "0" {
-                powerline.add_segment(exit_code, Style::simple(S::EXIT_CODE_FG, S::EXIT_CODE_BG))
-            }
+        if let Some(exit_code) = env::args().nth(1).filter(|c| c != "0") {
+            powerline.add_segment(exit_code, Style::simple(S::EXIT_CODE_FG, S::EXIT_CODE_BG))
         }
     }
 }

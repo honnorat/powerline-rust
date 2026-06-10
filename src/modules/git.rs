@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::env;
 use std::marker::PhantomData;
 use std::path::PathBuf;
@@ -6,6 +5,10 @@ use std::path::PathBuf;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
+// Pick the git backend at compile time: link `gix` (default) or shell out to `git`.
+//
+// Both submodules expose `run_git(&Path) -> GitStats`; aliasing one as `internal` keeps the call site below
+// backend-agnostic.
 #[cfg(not(feature = "gitoxide"))]
 mod process;
 
@@ -47,6 +50,7 @@ impl<S: GitScheme> Git<S> {
     }
 }
 
+/// Aggregated working-tree state, filled by the active backend.
 pub struct GitStats {
     pub untracked: u32,
     pub conflicted: u32,
@@ -58,34 +62,30 @@ pub struct GitStats {
 }
 
 impl GitStats {
+    /// True when *any* working-tree change exists (drives the branch colour).
     pub fn is_dirty(&self) -> bool {
         (self.untracked + self.conflicted + self.staged + self.non_staged) > 0
     }
 }
 
-fn find_git_dir() -> Option<PathBuf> {
-    let mut git_dir = env::current_dir().ok()?;
-    loop {
-        git_dir.push(".git");
-
-        if git_dir.exists() {
-            git_dir.pop();
-            return Some(git_dir);
-        }
-        git_dir.pop();
-
-        if !git_dir.pop() {
-            return None;
-        }
+impl Default for GitStats {
+    /// Fallback used when the repo cannot be read (e.g. empty repo with no HEAD).
+    fn default() -> Self {
+        Self { untracked: 0, conflicted: 0, non_staged: 0, staged: 0, ahead: 0, behind: 0, branch_name: "Big Bang".into() }
     }
+}
+
+/// Walk ancestors of the current directory until one contains a `.git` entry.
+fn find_git_dir() -> Option<PathBuf> {
+    // `?` propagates `None` from `Option` — early-returns if `current_dir()` failed.
+    let cwd = env::current_dir().ok()?;
+    cwd.ancestors().find(|p| p.join(".git").exists()).map(std::path::Path::to_path_buf)
 }
 
 impl<S: GitScheme> Module for Git<S> {
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        let git_dir = match find_git_dir() {
-            Some(dir) => dir,
-            _ => return,
-        };
+        // `let-else`: bind on `Some`, otherwise run the `else` block (must diverge).
+        let Some(git_dir) = find_git_dir() else { return };
 
         let stats = internal::run_git(&git_dir);
 
@@ -97,10 +97,10 @@ impl<S: GitScheme> Module for Git<S> {
 
         powerline.add_segment(format!(" {}", stats.branch_name), Style::simple(branch_fg, branch_bg));
 
-        let mut add_elem = |count: u32, symbol, fg, bg| match count.cmp(&1) {
-            Ordering::Equal => powerline.add_segment(symbol, Style::simple(fg, bg)),
-            Ordering::Greater => powerline.add_segment(format!("{}{}", count, symbol), Style::simple(fg, bg)),
-            Ordering::Less => (),
+        let mut add_elem = |count: u32, symbol, fg, bg| match count {
+            0 => {},
+            1 => powerline.add_segment(symbol, Style::simple(fg, bg)),
+            n => powerline.add_segment(format!("{n}{symbol}"), Style::simple(fg, bg)),
         };
 
         add_elem(stats.ahead, '\u{2B06}', S::GIT_AHEAD_FG, S::GIT_AHEAD_BG);

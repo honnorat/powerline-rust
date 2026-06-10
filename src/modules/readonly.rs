@@ -1,4 +1,3 @@
-use std::ffi::CString;
 use std::marker::PhantomData;
 
 use super::Module;
@@ -19,11 +18,11 @@ impl<S: ReadOnlyScheme> ReadOnly<S> {
 }
 
 impl<S: ReadOnlyScheme> Module for ReadOnly<S> {
+    /// Render a lock symbol when the current directory is not writable.
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        let readonly = unsafe {
-            let path = CString::new("./").unwrap();
-            libc::access(path.as_ptr(), libc::W_OK) != 0
-        };
+        // `c"./"` is a C-string literal; `libc::access` returns 0 when the check passes, so a non-zero result
+        // means write access is denied.
+        let readonly = unsafe { libc::access(c"./".as_ptr(), libc::W_OK) != 0 };
 
         if readonly {
             powerline.add_segment(S::READONLY_SYMBOL, Style::simple(S::READONLY_FG, S::READONLY_BG));

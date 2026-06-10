@@ -15,10 +15,12 @@ pub trait UserScheme {
 }
 
 impl<S: UserScheme> User<S> {
+    /// Always render the username.
     pub fn new() -> User<S> {
         User { show_on_local: true, scheme: PhantomData }
     }
 
+    /// Render only when the shell is detected as remote (SSH).
     pub fn show_on_remote_shell() -> User<S> {
         User { show_on_local: false, scheme: PhantomData }
     }

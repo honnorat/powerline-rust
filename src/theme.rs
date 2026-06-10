@@ -1,6 +1,9 @@
 use crate::modules::*;
 use crate::Color;
 
+/// Default theme. Implements every per-module `…Scheme` trait, so any module can be parametrised
+/// with `<SimpleTheme>`. A custom theme is a new zero-sized type that re-implements only the schemes
+/// it wants to override.
 #[derive(Copy, Clone)]
 pub struct SimpleTheme;
 

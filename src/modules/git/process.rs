@@ -3,99 +3,84 @@ use std::process::Command;
 
 use super::GitStats;
 
-pub fn get_first_number(s: &str) -> u32 {
-    s.chars().take_while(|x| x.is_digit(10)).flat_map(|x| x.to_digit(10)).fold(0, |acc, x| 10 * acc + x)
+/// Parse the leading run of ASCII digits in `s` as a `u32`. Returns 0 if there are none.
+fn leading_u32(s: &str) -> u32 {
+    let end = s.bytes().take_while(u8::is_ascii_digit).count();
+    s[..end].parse().unwrap_or(0)
 }
 
-pub fn extract_ahead_behind(s: &str) -> (u32, u32) {
-    let extract_number = |pos: usize, offset: usize| -> u32 {
-        let s = s.get((pos + offset)..).unwrap();
-        get_first_number(s)
-    };
-    let ahead = s.find("ahead").map(|pos| extract_number(pos, 6)).unwrap_or(0);
-    let behind = s.find("behind").map(|pos| extract_number(pos, 7)).unwrap_or(0);
-    (ahead, behind)
+/// Pull the `ahead N`/`behind N` counts out of git's `[ahead 1, behind 2]` suffix.
+fn extract_ahead_behind(s: &str) -> (u32, u32) {
+    // The `+ 1` skips the space that always follows the keyword.
+    let after = |needle: &str| s.find(needle).map(|pos| leading_u32(&s[pos + needle.len() + 1..])).unwrap_or(0);
+    (after("ahead"), after("behind"))
 }
 
-pub fn get_branch_name(s: &str) -> Option<&str> {
-    if let Some(rest) = s.get(3..) {
-        let mut end: usize = 0;
-        if let Some(pos) = rest.find("...") {
-            end = pos
-        } else {
-            let mut text = rest.chars();
-            while let Some(c) = text.next() {
-                end += 1;
-                if c.is_whitespace() {
-                    if Some('[') != text.next() {
-                        return None;
-                    }
-                    break;
-                }
-            }
-        }
-        rest.get(..end)
-    } else {
-        None
+/// Branch line looks like `## main...origin/main [ahead 1, behind 2]` (tracked)
+/// or `## main` (untracked) or `## HEAD (no branch)` (detached).
+fn get_branch_name(line: &str) -> Option<&str> {
+    let rest = line.get(3..)?;
+    if let Some(pos) = rest.find("...") {
+        return rest.get(..pos);
+    }
+    // Untracked local branch: name runs to end-of-line or to a `[...]` block.
+    let end = rest.find(' ').unwrap_or(rest.len());
+    if end < rest.len() && !rest[end..].trim_start().starts_with('[') {
+        return None;
+    }
+    rest.get(..end)
+}
+
+/// Detached HEAD: `git describe` for the closest tag/short hash, prefixed with ⚓.
+fn get_detached_branch_name() -> String {
+    let output = Command::new("git").args(["describe", "--tags", "--always"]).output();
+    match output {
+        Ok(out) if out.status.success() => {
+            let name = std::str::from_utf8(&out.stdout).unwrap_or("").lines().next().unwrap_or("");
+            format!("\u{2693}{}", name)
+        },
+        _ => "Big Bang".to_owned(),
     }
 }
 
-pub fn get_detached_branch_name() -> String {
-    let child = Command::new("git").args(&["describe", "--tags", "--always"]).output().unwrap();
-
-    if child.status.success() {
-        let branch = std::str::from_utf8(&child.stdout).unwrap().split('\n').next().unwrap();
-        format!("\u{2693}{}", branch)
-    } else {
-        String::from("Big Bang")
-    }
-}
-
+/// Shell out to `git status --porcelain -b` and parse its short output.
 pub fn run_git(_: &Path) -> GitStats {
-    let output = Command::new("git").args(&["status", "--porcelain", "-b"]).output().unwrap().stdout;
+    let Ok(out) = Command::new("git").args(["status", "--porcelain", "-b"]).output() else {
+        return GitStats::default();
+    };
+    let stdout = out.stdout;
+    let mut lines = stdout.split(|&b| b == b'\n');
+    let branch_line = std::str::from_utf8(lines.next().unwrap_or(b"")).unwrap_or("");
 
-    let mut lines = output.split(|x| *x == (b'\n'));
-    let branch_line = std::str::from_utf8(lines.next().unwrap()).unwrap();
+    let (mut ahead, mut behind) = (0, 0);
+    let (mut non_staged, mut staged, mut conflicted, mut untracked) = (0, 0, 0, 0);
 
-    let mut ahead = 0;
-    let mut behind = 0;
-    let mut non_staged = 0;
-    let mut staged = 0;
-    let mut conflicted = 0;
-    let mut untracked = 0;
-
-    let branch_name = {
-        if let Some(branch_name) = get_branch_name(&branch_line) {
-            if let Some(info) = branch_line.find('[').map(|pos| branch_line.get(pos..).unwrap()) {
-                let (a, b) = extract_ahead_behind(info);
+    let branch_name = match get_branch_name(branch_line) {
+        Some(name) => {
+            if let Some(pos) = branch_line.find('[') {
+                let (a, b) = extract_ahead_behind(&branch_line[pos..]);
                 ahead = a;
                 behind = b;
             }
-            String::from(branch_name)
-        } else {
-            get_detached_branch_name()
-        }
+            name.to_owned()
+        },
+        None => get_detached_branch_name(),
     };
-    let mut add_file = |entry: &str| {
+
+    for line in lines {
+        let Some(entry) = line.get(..2).and_then(|b| std::str::from_utf8(b).ok()) else { continue };
         match entry {
             "??" => untracked += 1,
             "DD" | "AU" | "UD" | "UA" | "UU" | "DU" | "AA" => conflicted += 1,
             _ => {
-                let mut chars = entry.chars();
-                let a = chars.next().expect("invalid file status");
-                let b = chars.next().expect("invalid file status");
-                if b != ' ' {
-                    non_staged += 1;
-                }
-                if a != ' ' {
-                    staged += 1;
-                }
+                let mut bytes = entry.bytes();
+                let a = bytes.next().unwrap_or(b' ');
+                let b = bytes.next().unwrap_or(b' ');
+                if b != b' ' { non_staged += 1; }
+                if a != b' ' { staged += 1; }
             },
-        };
-    };
-    for op in lines.flat_map(|line| line.get(..2)) {
-        add_file(std::str::from_utf8(op).unwrap());
+        }
     }
 
-    super::GitStats { untracked, ahead, behind, non_staged, staged, conflicted, branch_name }
+    GitStats { untracked, ahead, behind, non_staged, staged, conflicted, branch_name }
 }
