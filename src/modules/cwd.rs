@@ -51,8 +51,10 @@ impl<S: CwdScheme> Module for Cwd<S> {
             None => return,
         };
 
-        let cwd_owned = current_dir.to_string_lossy().into_owned();
-        let mut cwd = cwd_owned.as_str();
+        // `to_string_lossy` returns `Cow::Borrowed` for valid UTF-8 (the common case on Linux), so no
+        // allocation happens here. Bind the `Cow` so its borrow lives for the rest of the function.
+        let cwd_cow = current_dir.to_string_lossy();
+        let mut cwd: &str = &cwd_cow;
 
         if cwd == "/" {
             return powerline.add_segment('/', Style::simple(path_fg, path_bg));

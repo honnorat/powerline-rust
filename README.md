@@ -1,16 +1,27 @@
 # powerline-rust
-[![Build Status](https://travis-ci.org/cirho/powerline-rust.svg)](https://travis-ci.org/cirho/powerline-rust)
 
-powerline-rust is an alternative to [powerline-shell](https://github.com/b-ryan/powerline-shell). It's heavily inspired by it, but focuses on **minimalizing time of execution**.
+powerline-rust is an alternative to [powerline-shell](https://github.com/b-ryan/powerline-shell). It's heavily
+inspired by it, but focuses on **minimizing execution time**.
 
-Nobody wants to see latency between pressing enter in favourite shell and seeing prompt. This is main aim of this crate and that's why some features of other alternatives like dynamic segments choosing and theming via **commandline arguments** is **not possible here**.
+> This project started as a fork of [cirho/powerline-rust](https://github.com/cirho/powerline-rust) and has
+> since diverged: extra modules (`Jobs`, `Time`, SSH-aware `Host`), `VIRTUAL_ENV_PROMPT` / conda support,
+> worktree fixes, and a `gix`-based git backend in place of `libgit2`.
 
-Although, similar results **can be archived** by **customization**.
+Nobody wants to see latency between pressing enter in their favourite shell and seeing the prompt. That is the
+main aim of this tool, and the reason features of other alternatives like dynamic segment selection and
+theming via **command-line arguments** are **not possible here**.
 
-There is a demand to recompile every time while customizing, but you change your prompt only once upon a time. I think performance beneficence is worth it.
+Similar results can however be achieved through **customization**.
 
-With default settings `powerline-rust` uses `libgit` for git prompt. Unfortunately results vary from system to system so if you want every last bit of a performance you can try disabling this feature and benchmarking.
+You have to recompile every time you customize it, but you only change your prompt once in a while — the
+performance benefit is worth it.
+
+With default settings `powerline-rust` uses `gix` (gitoxide) for the git prompt. Results vary from system to
+system, so if you want every last bit of performance you can try disabling this feature and benchmarking
+against the `git` subprocess backend.
+
 ## Advantages
+
 - blazing fast (less than 0.010s)
 - only necessary dependencies
 - runs git backend only when needed (huge time improvements in directories not in git tree)
@@ -32,16 +43,16 @@ cd powerline-rust
 # bash shell
 cargo install --path .
 # zsh shell
-cargo install --path . --no-default-features --features=zsh-shell,libgit
+cargo install --path . --no-default-features --features=zsh-shell,gitoxide
 # fish shell
-cargo install --path . --no-default-features --features=bare-shell,libgit
+cargo install --path . --no-default-features --features=bare-shell,gitoxide
 ```
 
-You can also install one of examples by adding `--example {name}` to cargo command.
+You can also install one of the examples by adding `--example {name}` to the cargo command.
 
 ## Setting up shell
 
-Make sure you have executable in `$PATH`.
+Make sure the executable is in your `$PATH`.
 
 ### bash
 
@@ -79,7 +90,7 @@ end
 
 ## Custom shell prompt
 
-Simply create new rust program that fulfils your requirements.
+Simply create a new Rust program that fulfils your requirements.
 
 ```rust
 use powerline::{modules::*, theme::SimpleTheme};
@@ -96,16 +107,14 @@ fn main() {
 
     println!("{}", prompt);
 }
-
-
 ```
 
-## Tips and trigs
+## Tips and tricks
 
 ### Strip executable
 
-Remove unnecessary symbols from file to greatly reduce size of it.
-Theoretically it can reduce time of execution.
+Remove unnecessary symbols from the binary to greatly reduce its size. Theoretically it can reduce execution
+time.
 
 ```bash
 cd ~/.cargo/bin/
@@ -128,8 +137,11 @@ Enables optimizations for your specific processor.
 ```bash
 RUSTFLAGS="-C target-cpu=native" cargo ...
 ```
+
 ### Cache untracked files
-Git module can be slower on repos with big number of untracked files. Read about caching untracked files  [here](https://git-scm.com/docs/git-update-index).
+
+The Git module can be slower on repos with a large number of untracked files. Read about caching untracked
+files [here](https://git-scm.com/docs/git-update-index).
 
 ### Custom theme
 
