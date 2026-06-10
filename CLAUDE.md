@@ -18,14 +18,14 @@ The crate is both a library (`src/lib.rs`) and a binary (`src/bin/powerline.rs`)
 selected via mutually-exclusive Cargo features.
 
 ```bash
-# bash (default features = bash-shell + libgit)
+# bash (default features = bash-shell + gitoxide)
 cargo install --path .
 
 # zsh
-cargo install --path . --no-default-features --features=zsh-shell,libgit
+cargo install --path . --no-default-features --features=zsh-shell,gitoxide
 
 # fish (raw ANSI escapes)
-cargo install --path . --no-default-features --features=bare-shell,libgit
+cargo install --path . --no-default-features --features=bare-shell,gitoxide
 
 # enable the optional Time module
 cargo install --path . --features=time
@@ -35,8 +35,9 @@ Feature flags (`Cargo.toml`):
 
 - `bash-shell` / `zsh-shell` / `bare-shell` — choose ONE; controls escape-sequence wrapping in
   `src/terminal.rs` (`\[…\]` for bash, `%{…%}` for zsh, raw `\x1b[…]` for bare).
-- `libgit` (default) — link `git2` and use `src/modules/git/libgit.rs`; without it the `process` backend shells out to `git` (`src/modules/git/process.rs`).
-- `time` — enables the `Time` module via `chrono`.
+- `gitoxide` (default) — link `gix` and use `src/modules/git/gitoxide.rs`; without it the `process` backend
+  shells out to `git` (`src/modules/git/process.rs`).
+- `time` — enables the `Time` module (uses `libc::strftime`; no extra crate dependency).
 
 Standard cargo workflow otherwise: `cargo build`, `cargo build --release`, `cargo check`, `cargo test`, `cargo
 fmt` (config in `rustfmt.toml`: `max_width=130`, `use_small_heuristics=Max`).
@@ -64,9 +65,9 @@ segment tree.
 - `terminal.rs` defines `Color(u8)` (256-color palette indices) and the `FgColor`/`BgColor`/`Reset` newtypes
   whose `Display` impls produce shell-specific escape sequences gated on the shell feature flag. Adding a new
   shell means adding a `#[cfg(feature = "…")]` branch in all three `Display` impls.
-- Git backend selection happens via `#[cfg]` aliasing inside `src/modules/git.rs`: both `libgit` and `process`
-  submodules expose `run_git(&Path) -> GitStats`, and the parent re-aliases one as `internal`. New git data
-  flows through `GitStats`.
+- Git backend selection happens via `#[cfg]` aliasing inside `src/modules/git.rs`: both `gitoxide` and
+  `process` submodules expose `run_git(&Path) -> GitStats`, and the parent re-aliases one as `internal`. New
+  git data flows through `GitStats`.
 
 ## Shell integration contract
 
