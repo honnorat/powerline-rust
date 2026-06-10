@@ -1,5 +1,3 @@
-extern crate powerline;
-
 #[cfg(feature = "time")]
 use powerline::modules::Time;
 use powerline::modules::*;

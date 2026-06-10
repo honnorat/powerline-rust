@@ -2,14 +2,13 @@
 name = "powerline"
 version = "0.3.1-mh01"
 authors = ["cirho <me@cirho.com>", "Marc Honnorat <marc@honnorat.fr>"]
-edition = "2018"
+edition = "2024"
 
 [dependencies]
-uzers = "0.12.1"
-libc = "0.2.169"
-hostname = "0.4.0"
-git2 = { version = "0.20.0", optional = true, default-features = false }
-chrono = { version = "0.4.39", optional = true }
+uzers = "0.12.2"
+libc = "0.2.186"
+git2 = { version = "0.21.0", optional = true, default-features = false }
+chrono = { version = "0.4.45", optional = true }
 
 [features]
 default = ["bash-shell", "libgit"]
