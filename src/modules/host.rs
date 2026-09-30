@@ -36,13 +36,13 @@ impl<S: HostScheme> Default for Host<S> {
 /// Read the kernel hostname and return only the part before the first dot.
 fn short_hostname() -> Option<String> {
     let mut buf = [0u8; 256];
-    // `unsafe` is required to call C: we promise the pointer + length are valid.
-    // Pass len-1 so any truncated result stays NUL-terminated.
+    // SAFETY: `buf` is valid for writes of `buf.len() - 1` bytes. The last byte is never written and
+    // stays 0, so the result is NUL-terminated even if POSIX truncation leaves it unterminated.
     let rc = unsafe { libc::gethostname(buf.as_mut_ptr().cast(), buf.len() - 1) };
     if rc != 0 {
         return None;
     }
-    // `?` here propagates `None` from `Option` — bail on any conversion failure.
+    // Bail on any conversion failure.
     let s = std::ffi::CStr::from_bytes_until_nul(&buf).ok()?.to_str().ok()?;
     Some(s.split('.').next()?.to_owned())
 }

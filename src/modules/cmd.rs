@@ -39,7 +39,6 @@ impl<S: CmdScheme> Default for Cmd<S> {
 impl<S: CmdScheme> Module for Cmd<S> {
     /// Render the prompt symbol coloured by command success and by uid (root vs user).
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        // `unwrap_or_else` evaluates the closure only when `self.status` is `None`.
         let passed = self.status.unwrap_or_else(|| env::args().nth(1).as_deref() == Some("0"));
         let (fg, bg) = if passed { (S::CMD_PASSED_FG, S::CMD_PASSED_BG) } else { (S::CMD_FAILED_FG, S::CMD_FAILED_BG) };
 

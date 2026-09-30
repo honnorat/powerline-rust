@@ -5,9 +5,6 @@ use super::Module;
 use crate::{Color, Powerline, Style};
 
 /// Current working directory, split into one segment per path component.
-///
-/// `PhantomData<S>` makes `S` a *type-only* parameter — it carries no runtime data, but lets
-/// every `const Color` in `S` be inlined at compile time.
 pub struct Cwd<S> {
     max_length: usize,
     wanted_seg_num: usize,
@@ -77,7 +74,6 @@ impl<S: CwdScheme> Module for Cwd<S> {
             env::var("PWD").ok().map(path::PathBuf::from).or_else(|| env::current_dir().ok())
         };
 
-        // Match-with-guard: first arm matches Some only if `dir.exists()` is true.
         let (current_dir, path_fg, path_bg) = match current_dir {
             Some(dir) if dir.exists() => (dir, S::PATH_FG, S::PATH_BG),
             Some(dir) => (dir, S::CWD_MISSING_FG, S::CWD_MISSING_BG),

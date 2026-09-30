@@ -40,7 +40,9 @@ impl<S: TimeScheme> Module for Time<S> {
     /// Format the current local time via libc and render it as one segment.
     fn append_segments(&mut self, powerline: &mut Powerline) {
         let mut buf = [0u8; 64];
-        // `unsafe` for the libc calls: we pass a zeroed `tm` and a valid buffer.
+        // SAFETY: `time` accepts a null pointer. A zeroed `tm` is a valid value (its only pointer
+        // field, `tm_zone`, is null) and `localtime_r` overwrites it. `buf` is valid for `buf.len()`
+        // bytes, which `strftime` never exceeds.
         let written = unsafe {
             let now = libc::time(std::ptr::null_mut());
             let mut tm: libc::tm = std::mem::zeroed();

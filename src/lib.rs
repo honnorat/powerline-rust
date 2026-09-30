@@ -7,7 +7,6 @@ pub mod powerline;
 pub mod terminal;
 pub mod theme;
 
-// `pub(crate)` = visible inside this crate only, not part of the public API.
 pub(crate) mod utils;
 
 pub use crate::powerline::{Powerline, Style};

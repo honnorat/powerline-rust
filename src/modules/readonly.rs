@@ -28,8 +28,8 @@ impl<S: ReadOnlyScheme> Default for ReadOnly<S> {
 impl<S: ReadOnlyScheme> Module for ReadOnly<S> {
     /// Render a lock symbol when the current directory is not writable.
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        // `c"./"` is a C-string literal; `libc::access` returns 0 when the check passes, so a non-zero result
-        // means write access is denied.
+        // `access` returns 0 when the check passes, so non-zero means write access is denied.
+        // SAFETY: `c"./"` is a valid NUL-terminated C string.
         let readonly = unsafe { libc::access(c"./".as_ptr(), libc::W_OK) != 0 };
 
         if readonly {

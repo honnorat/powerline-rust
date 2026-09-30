@@ -91,14 +91,12 @@ impl Default for GitStats {
 
 /// Walk ancestors of the current directory until one contains a `.git` entry.
 fn find_git_dir() -> Option<PathBuf> {
-    // `?` propagates `None` from `Option` — early-returns if `current_dir()` failed.
     let cwd = env::current_dir().ok()?;
     cwd.ancestors().find(|p| p.join(".git").exists()).map(std::path::Path::to_path_buf)
 }
 
 impl<S: GitScheme> Module for Git<S> {
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        // `let-else`: bind on `Some`, otherwise run the `else` block (must diverge).
         let Some(git_dir) = find_git_dir() else { return };
 
         let stats = internal::run_git(&git_dir);
