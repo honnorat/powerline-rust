@@ -77,7 +77,15 @@ impl GitStats {
 impl Default for GitStats {
     /// Fallback used when the repo cannot be read (e.g. empty repo with no HEAD).
     fn default() -> Self {
-        Self { untracked: 0, conflicted: 0, non_staged: 0, staged: 0, ahead: 0, behind: 0, branch_name: "Big Bang".into() }
+        Self {
+            untracked: 0,
+            conflicted: 0,
+            non_staged: 0,
+            staged: 0,
+            ahead: 0,
+            behind: 0,
+            branch_name: "Big Bang".into(),
+        }
     }
 }
 

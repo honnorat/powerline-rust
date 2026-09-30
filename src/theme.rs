@@ -1,5 +1,5 @@
-use crate::modules::*;
 use crate::Color;
+use crate::modules::*;
 
 /// Default theme. Implements every per-module `…Scheme` trait, so any module can be parametrised
 /// with `<SimpleTheme>`. A custom theme is a new zero-sized type that re-implements only the schemes
@@ -36,6 +36,7 @@ impl UserScheme for SimpleTheme {
     const USERNAME_ROOT_BG: Color = Color(124);
 }
 
+#[rustfmt::skip]
 impl HostScheme for SimpleTheme {
     const HOSTNAME_BG: Color = Color(233);
     const HOSTNAME_FG: Color = Color(221);
@@ -43,9 +44,10 @@ impl HostScheme for SimpleTheme {
     const SSH_FG: Color = Color(254);   // very-light grey
 }
 
+#[rustfmt::skip]
 impl JobsScheme for SimpleTheme {
-    const JOBS_BG: Color = Color(24);     // marine
-    const JOBS_FG: Color = Color(254);    // very-light grey
+    const JOBS_BG: Color = Color(24);   // marine
+    const JOBS_FG: Color = Color(254);  // very-light grey
 }
 
 impl ReadOnlyScheme for SimpleTheme {
@@ -59,6 +61,7 @@ impl TimeScheme for SimpleTheme {
     const TIME_FG: Color = Color(250);
 }
 
+#[rustfmt::skip]
 impl GitScheme for SimpleTheme {
     const GIT_AHEAD_BG: Color = Color(240);
     const GIT_AHEAD_FG: Color = Color(250);
@@ -68,10 +71,10 @@ impl GitScheme for SimpleTheme {
     const GIT_CONFLICTED_FG: Color = Color(15);
     const GIT_NOTSTAGED_BG: Color = Color(130);
     const GIT_NOTSTAGED_FG: Color = Color(15);
-    const GIT_REPO_CLEAN_BG: Color = Color(28);     // dark green
-    const GIT_REPO_CLEAN_FG: Color = Color(254);    // very-light grey
-    const GIT_REPO_DIRTY_BG: Color = Color(160);    // red
-    const GIT_REPO_DIRTY_FG: Color = Color(254);    // very-light grey
+    const GIT_REPO_CLEAN_BG: Color = Color(28);   // dark green
+    const GIT_REPO_CLEAN_FG: Color = Color(254);  // very-light grey
+    const GIT_REPO_DIRTY_BG: Color = Color(160);  // red
+    const GIT_REPO_DIRTY_FG: Color = Color(254);  // very-light grey
     const GIT_STAGED_BG: Color = Color(28);
     const GIT_STAGED_FG: Color = Color(15);
     const GIT_UNTRACKED_BG: Color = Color(52);
@@ -83,6 +86,7 @@ impl VirtualEnvScheme for SimpleTheme {
     const PYVENV_FG: Color = Color(254);
 }
 
+#[rustfmt::skip]
 impl DropEnvScheme for SimpleTheme {
     const DROPENV_BG: Color = Color(22);   // very dark green
     const DROPENV_FG: Color = Color(254);

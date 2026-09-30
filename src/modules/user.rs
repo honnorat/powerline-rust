@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use super::Module;
-use crate::{utils, Color, Powerline, Style};
+use crate::{Color, Powerline, Style, utils};
 
 pub struct User<S> {
     show_on_local: bool,
@@ -41,10 +41,8 @@ impl<S: UserScheme> Module for User<S> {
         {
             let bg = if user.uid() == 0 { S::USERNAME_ROOT_BG } else { S::USERNAME_BG };
 
-            powerline.add_short_segment(
-                format!("{} ", user.name().to_string_lossy()),
-                Style::simple(S::USERNAME_FG, bg)
-            );
+            powerline
+                .add_short_segment(format!("{} ", user.name().to_string_lossy()), Style::simple(S::USERNAME_FG, bg));
         }
     }
 }

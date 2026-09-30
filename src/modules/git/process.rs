@@ -76,8 +76,12 @@ pub fn run_git(_: &Path) -> GitStats {
                 let mut bytes = entry.bytes();
                 let a = bytes.next().unwrap_or(b' ');
                 let b = bytes.next().unwrap_or(b' ');
-                if b != b' ' { non_staged += 1; }
-                if a != b' ' { staged += 1; }
+                if b != b' ' {
+                    non_staged += 1;
+                }
+                if a != b' ' {
+                    staged += 1;
+                }
             },
         }
     }

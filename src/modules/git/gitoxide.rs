@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use gix::{
-    Repository, bstr::BString, progress::Discard, remote::Direction, status::Item, status::index_worktree::Item as WtItem,
-    status::plumbing::index_as_worktree::EntryStatus,
+    Repository, bstr::BString, progress::Discard, remote::Direction, status::Item,
+    status::index_worktree::Item as WtItem, status::plumbing::index_as_worktree::EntryStatus,
 };
 
 use super::GitStats;
@@ -56,14 +56,18 @@ fn head_info(repo: &Repository) -> (String, u32, u32) {
 
     let branch_name = head_ref.name().shorten().to_string();
 
-    let Ok(local) = head_ref.peel_to_id() else { return (branch_name, 0, 0); };
+    let Ok(local) = head_ref.peel_to_id() else {
+        return (branch_name, 0, 0);
+    };
     let Some(Ok(upstream_name)) = head_ref.remote_tracking_ref_name(Direction::Fetch) else {
         return (branch_name, 0, 0);
     };
     let Ok(mut upstream_ref) = repo.find_reference(upstream_name.as_ref()) else {
         return (branch_name, 0, 0);
     };
-    let Ok(upstream) = upstream_ref.peel_to_id() else { return (branch_name, 0, 0); };
+    let Ok(upstream) = upstream_ref.peel_to_id() else {
+        return (branch_name, 0, 0);
+    };
 
     let ahead = count_walk(repo, local.detach(), upstream.detach());
     let behind = count_walk(repo, upstream.detach(), local.detach());
@@ -72,9 +76,5 @@ fn head_info(repo: &Repository) -> (String, u32, u32) {
 
 /// Count commits reachable from `tip` but excluding those reachable from `hidden`.
 fn count_walk(repo: &Repository, tip: gix::ObjectId, hidden: gix::ObjectId) -> u32 {
-    repo.rev_walk([tip])
-        .with_hidden([hidden])
-        .all()
-        .map(|w| w.filter_map(Result::ok).count() as u32)
-        .unwrap_or(0)
+    repo.rev_walk([tip]).with_hidden([hidden]).all().map(|w| w.filter_map(Result::ok).count() as u32).unwrap_or(0)
 }

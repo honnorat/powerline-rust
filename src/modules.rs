@@ -16,6 +16,7 @@ mod time;
 
 pub use cmd::{Cmd, CmdScheme};
 pub use cwd::{Cwd, CwdScheme};
+pub use drop::{DropEnv, DropEnvScheme};
 pub use exit_code::{ExitCode, ExitCodeScheme};
 pub use git::{Git, GitScheme};
 pub use host::{Host, HostScheme};
@@ -24,7 +25,6 @@ pub use readonly::{ReadOnly, ReadOnlyScheme};
 #[cfg(feature = "time")]
 pub use time::{Time, TimeScheme};
 pub use user::{User, UserScheme};
-pub use drop::{DropEnv, DropEnvScheme};
 pub use venv::{VirtualEnv, VirtualEnvScheme};
 
 /// One renderable piece of the prompt. Implementations decide internally whether to emit nothing (e.g. `Git`

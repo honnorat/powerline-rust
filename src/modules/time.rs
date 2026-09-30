@@ -47,12 +47,7 @@ impl<S: TimeScheme> Module for Time<S> {
             if libc::localtime_r(&now, &mut tm).is_null() {
                 return;
             }
-            libc::strftime(
-                buf.as_mut_ptr().cast(),
-                buf.len(),
-                self.time_format.as_ptr(),
-                &tm,
-            )
+            libc::strftime(buf.as_mut_ptr().cast(), buf.len(), self.time_format.as_ptr(), &tm)
         };
         if written == 0 {
             return;
