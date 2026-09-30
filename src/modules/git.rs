@@ -45,8 +45,14 @@ pub trait GitScheme {
 }
 
 impl<S: GitScheme> Git<S> {
-    pub fn new() -> Git<S> {
-        Git { scheme: PhantomData }
+    pub fn new() -> Self {
+        Self { scheme: PhantomData }
+    }
+}
+
+impl<S: GitScheme> Default for Git<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -64,7 +70,7 @@ pub struct GitStats {
 impl GitStats {
     /// True when *any* working-tree change exists (drives the branch colour).
     pub fn is_dirty(&self) -> bool {
-        (self.untracked + self.conflicted + self.staged + self.non_staged) > 0
+        self.untracked > 0 || self.conflicted > 0 || self.staged > 0 || self.non_staged > 0
     }
 }
 

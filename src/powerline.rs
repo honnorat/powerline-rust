@@ -4,7 +4,7 @@ use crate::modules::Module;
 use crate::terminal::*;
 
 /// Foreground/background colours plus the separator glyph emitted *after* this segment.
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Style {
     pub fg: FgColor,
     pub bg: BgColor,
@@ -15,23 +15,23 @@ pub struct Style {
 
 impl Style {
     /// Solid powerline separator (U+E0B0), separator colour = own background.
-    pub fn simple(fg: Color, bg: Color) -> Style {
-        Style { fg: fg.into(), bg: bg.into(), sep: '\u{E0B0}', sep_fg: bg.into(), bold: false }
+    pub fn simple(fg: Color, bg: Color) -> Self {
+        Self { fg: fg.into(), bg: bg.into(), sep: '\u{E0B0}', sep_fg: bg.into(), bold: false }
     }
 
     /// No separator glyph — a space sits between this segment and the next.
-    pub fn nosep(fg: Color, bg: Color) -> Style {
-        Style { fg: fg.into(), bg: bg.into(), sep: ' ', sep_fg: bg.into(), bold: false }
+    pub fn nosep(fg: Color, bg: Color) -> Self {
+        Self { fg: fg.into(), bg: bg.into(), sep: ' ', sep_fg: bg.into(), bold: false }
     }
 
     /// Custom separator glyph and colour (used e.g. for the thin CWD divider).
-    pub fn special(fg: Color, bg: Color, sep: char, sep_fg: Color) -> Style {
-        Style { fg: fg.into(), bg: bg.into(), sep, sep_fg: sep_fg.into(), bold: false }
+    pub fn special(fg: Color, bg: Color, sep: char, sep_fg: Color) -> Self {
+        Self { fg: fg.into(), bg: bg.into(), sep, sep_fg: sep_fg.into(), bold: false }
     }
 
     /// Render this segment's content in bold. The bold attribute is scoped to the content only (turned off
     /// again right after), so it never bleeds into the separator or the following segment.
-    pub fn bold(mut self) -> Style {
+    pub fn bold(mut self) -> Self {
         self.bold = true;
         self
     }
@@ -45,8 +45,8 @@ pub struct Powerline {
 }
 
 impl Powerline {
-    pub fn new() -> Powerline {
-        Powerline { buffer: String::with_capacity(512), last_style: None }
+    pub fn new() -> Self {
+        Self { buffer: String::with_capacity(512), last_style: None }
     }
 
     /// Emit the previous segment's separator (now that we know the new bg), then the new segment's fg +
@@ -77,7 +77,7 @@ impl Powerline {
         }
 
         // `let _ = ...` discards the `Result` — writing into a `String` is infallible.
-        let _ = if spaces { write!(self.buffer, " {} ", seg) } else { write!(self.buffer, "{}", seg) };
+        let _ = if spaces { write!(self.buffer, " {seg} ") } else { write!(self.buffer, "{seg}") };
 
         if style.bold {
             let _ = write!(self.buffer, "{}", Bold(false));
@@ -105,6 +105,12 @@ impl Powerline {
     /// after the fact (used by `Cwd` to upgrade the last thin divider into a solid one).
     pub fn last_style_mut(&mut self) -> Option<&mut Style> {
         self.last_style.as_mut()
+    }
+}
+
+impl Default for Powerline {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

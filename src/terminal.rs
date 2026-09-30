@@ -42,6 +42,20 @@ impl From<Color> for BgColor {
     }
 }
 
+// Cargo assumes features are additive, but exactly one shell feature must be enabled here.
+#[cfg(not(any(feature = "bash-shell", feature = "bare-shell", feature = "zsh-shell")))]
+compile_error!("enable one shell feature: `bash-shell`, `zsh-shell` or `bare-shell`");
+
+#[cfg(any(
+    all(feature = "bash-shell", feature = "bare-shell"),
+    all(feature = "bash-shell", feature = "zsh-shell"),
+    all(feature = "bare-shell", feature = "zsh-shell"),
+))]
+compile_error!(
+    "shell features are mutually exclusive; `bash-shell` is a default feature, so build with e.g. \
+     `--no-default-features --features=zsh-shell,gitoxide`"
+);
+
 // Per-shell wrappers around an ANSI escape sequence. OPEN/CLOSE bracket the
 // escape so the shell doesn't count it as visible width; ESC is the CSI introducer.
 #[cfg(feature = "bash-shell")]
@@ -87,9 +101,10 @@ impl std::fmt::Display for Bold {
 impl std::fmt::Display for Reset {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         // zsh wraps fg and bg resets separately so each stays width-zero.
-        #[cfg(feature = "zsh-shell")]
-        return f.write_str("%{\x1b[39m%}%{\x1b[49m%}");
-        #[cfg(not(feature = "zsh-shell"))]
-        return write!(f, "{OPEN}{ESC}0m{CLOSE}");
+        if cfg!(feature = "zsh-shell") {
+            f.write_str("%{\x1b[39m%}%{\x1b[49m%}")
+        } else {
+            write!(f, "{OPEN}{ESC}0m{CLOSE}")
+        }
     }
 }

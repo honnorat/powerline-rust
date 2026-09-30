@@ -8,7 +8,7 @@ use crate::{Color, Powerline, Style};
 ///
 /// `PhantomData<S>` makes `S` a *type-only* parameter — it carries no runtime data, but lets
 /// every `const Color` in `S` be inlined at compile time.
-pub struct Cwd<S: CwdScheme> {
+pub struct Cwd<S> {
     max_length: usize,
     wanted_seg_num: usize,
     resolve_symlinks: bool,
@@ -31,8 +31,8 @@ impl<S: CwdScheme> Cwd<S> {
     /// - `max_length`: collapse the path with an ellipsis if it would be longer.
     /// - `wanted_seg_num`: how many components to keep when collapsing.
     /// - `resolve_symlinks`: if true prefer the canonical path, else honour `$PWD`.
-    pub fn new(max_length: usize, wanted_seg_num: usize, resolve_symlinks: bool) -> Cwd<S> {
-        Cwd { max_length, wanted_seg_num, resolve_symlinks, scheme: PhantomData }
+    pub fn new(max_length: usize, wanted_seg_num: usize, resolve_symlinks: bool) -> Self {
+        Self { max_length, wanted_seg_num, resolve_symlinks, scheme: PhantomData }
     }
 }
 
@@ -51,8 +51,9 @@ impl<S: CwdScheme> Module for Cwd<S> {
             None => return,
         };
 
-        // `to_string_lossy` returns `Cow::Borrowed` for valid UTF-8 (the common case on Linux), so no
-        // allocation happens here. Bind the `Cow` so its borrow lives for the rest of the function.
+        // `to_string_lossy` returns `Cow::Borrowed` for valid UTF-8 (the common case on Linux), so
+        // no allocation happens here. Bind the `Cow` so its borrow lives for the rest of the
+        // function.
         let cwd_cow = current_dir.to_string_lossy();
         let mut cwd: &str = &cwd_cow;
 
@@ -62,14 +63,18 @@ impl<S: CwdScheme> Module for Cwd<S> {
 
         let segment_style = Style::special(path_fg, path_bg, '\u{E0B1}', S::SEPARATOR_FG);
         let push = |powerline: &mut Powerline, val: &str| {
-            powerline.add_segment(val, segment_style.clone());
+            powerline.add_segment(val, segment_style);
         };
 
-        if let Ok(home_str) = env::var("HOME") {
-            if let Some(rest) = cwd.strip_prefix(home_str.as_str()) {
-                push(powerline, S::CWD_HOME_SYMBOL);
-                cwd = rest;
-            }
+        // Match on a whole path component: `$HOME=/home/user` must not swallow `/home/username`. A
+        // trailing slash in `$HOME` is dropped so the remainder always starts with `/` (or is
+        // empty).
+        if let Ok(home_str) = env::var("HOME")
+            && let Some(rest) = cwd.strip_prefix(home_str.trim_end_matches('/'))
+            && (rest.is_empty() || rest.starts_with('/'))
+        {
+            push(powerline, S::CWD_HOME_SYMBOL);
+            cwd = rest;
         }
 
         let depth = cwd.matches('/').count();

@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-pub struct Jobs<S: JobsScheme> {
+pub struct Jobs<S> {
     scheme: PhantomData<S>,
 }
 
@@ -14,8 +14,14 @@ pub trait JobsScheme {
 }
 
 impl<S: JobsScheme> Jobs<S> {
-    pub fn new() -> Jobs<S> {
-        Jobs { scheme: PhantomData }
+    pub fn new() -> Self {
+        Self { scheme: PhantomData }
+    }
+}
+
+impl<S: JobsScheme> Default for Jobs<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -23,10 +29,10 @@ impl<S: JobsScheme> Module for Jobs<S> {
     /// Read `$NUM_JOBS` (set by the shell wrapper from the `jobs` builtin) and render
     /// a segment unless it is equal to "0".
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        if let Ok(job_count) = env::var("NUM_JOBS") {
-            if job_count != "0" {
-                powerline.add_segment(job_count, Style::simple(S::JOBS_FG, S::JOBS_BG))
-            }
+        if let Ok(job_count) = env::var("NUM_JOBS")
+            && job_count != "0"
+        {
+            powerline.add_segment(job_count, Style::simple(S::JOBS_FG, S::JOBS_BG))
         }
     }
 }

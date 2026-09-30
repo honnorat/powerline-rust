@@ -1,5 +1,3 @@
-#[cfg(feature = "time")]
-use powerline::modules::Time;
 use powerline::modules::*;
 use powerline::theme::SimpleTheme;
 
@@ -21,5 +19,5 @@ fn main() {
     prompt.add_module(Jobs::<SimpleTheme>::new());
     prompt.add_module(ExitCode::<SimpleTheme>::new());
 
-    println!("{} ", prompt);
+    println!("{prompt} ");
 }

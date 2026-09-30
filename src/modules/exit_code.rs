@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-pub struct ExitCode<S: ExitCodeScheme> {
+pub struct ExitCode<S> {
     scheme: PhantomData<S>,
 }
 
@@ -14,8 +14,14 @@ pub trait ExitCodeScheme {
 }
 
 impl<S: ExitCodeScheme> ExitCode<S> {
-    pub fn new() -> ExitCode<S> {
-        ExitCode { scheme: PhantomData }
+    pub fn new() -> Self {
+        Self { scheme: PhantomData }
+    }
+}
+
+impl<S: ExitCodeScheme> Default for ExitCode<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

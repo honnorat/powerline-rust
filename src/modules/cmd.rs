@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-pub struct Cmd<S: CmdScheme> {
+pub struct Cmd<S> {
     status: Option<bool>,
     scheme: PhantomData<S>,
 }
@@ -20,13 +20,19 @@ pub trait CmdScheme {
 
 impl<S: CmdScheme> Cmd<S> {
     /// Derive pass/fail from `argv[1]` (the previous command's exit code).
-    pub fn new() -> Cmd<S> {
-        Cmd { status: None, scheme: PhantomData }
+    pub fn new() -> Self {
+        Self { status: None, scheme: PhantomData }
     }
 
     /// Force the pass/fail state instead of reading the exit code.
-    pub fn with_status(status: bool) -> Cmd<S> {
-        Cmd { status: Some(status), scheme: PhantomData }
+    pub fn with_status(status: bool) -> Self {
+        Self { status: Some(status), scheme: PhantomData }
+    }
+}
+
+impl<S: CmdScheme> Default for Cmd<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

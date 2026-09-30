@@ -37,7 +37,7 @@ fn get_detached_branch_name() -> String {
     match output {
         Ok(out) if out.status.success() => {
             let name = std::str::from_utf8(&out.stdout).unwrap_or("").lines().next().unwrap_or("");
-            format!("\u{2693}{}", name)
+            format!("\u{2693}{name}")
         },
         _ => "Big Bang".to_owned(),
     }

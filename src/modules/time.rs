@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-pub struct Time<S: TimeScheme> {
+pub struct Time<S> {
     time_format: CString,
     scheme: PhantomData<S>,
 }
@@ -16,17 +16,23 @@ pub trait TimeScheme {
 
 impl<S: TimeScheme> Time<S> {
     /// Default to `HH:MM:SS`.
-    pub fn new() -> Time<S> {
+    pub fn new() -> Self {
         Self::with_time_format("%H:%M:%S")
     }
 
     /// Custom `strftime(3)` format string.
-    pub fn with_time_format(time_format: &str) -> Time<S> {
-        Time {
+    pub fn with_time_format(time_format: &str) -> Self {
+        Self {
             // `CString::new` fails only on interior NUL bytes — caller error.
             time_format: CString::new(time_format).expect("time format contains NUL byte"),
             scheme: PhantomData,
         }
+    }
+}
+
+impl<S: TimeScheme> Default for Time<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -42,7 +48,7 @@ impl<S: TimeScheme> Module for Time<S> {
                 return;
             }
             libc::strftime(
-                buf.as_mut_ptr() as *mut libc::c_char,
+                buf.as_mut_ptr().cast(),
                 buf.len(),
                 self.time_format.as_ptr(),
                 &tm,

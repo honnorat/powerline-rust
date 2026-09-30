@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-pub struct DropEnv<S: DropEnvScheme> {
+pub struct DropEnv<S> {
     scheme: PhantomData<S>,
 }
 
@@ -14,8 +14,14 @@ pub trait DropEnvScheme {
 }
 
 impl<S: DropEnvScheme> DropEnv<S> {
-    pub fn new() -> DropEnv<S> {
-        DropEnv { scheme: PhantomData }
+    pub fn new() -> Self {
+        Self { scheme: PhantomData }
+    }
+}
+
+impl<S: DropEnvScheme> Default for DropEnv<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

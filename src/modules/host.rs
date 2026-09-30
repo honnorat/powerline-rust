@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use super::Module;
 use crate::{Color, Powerline, Style, utils};
 
-pub struct Host<S: HostScheme> {
+pub struct Host<S> {
     show_on_local: bool,
     scheme: PhantomData<S>,
 }
@@ -17,13 +17,19 @@ pub trait HostScheme {
 
 impl<S: HostScheme> Host<S> {
     /// Always render the hostname.
-    pub fn new() -> Host<S> {
-        Host { show_on_local: true, scheme: PhantomData }
+    pub fn new() -> Self {
+        Self { show_on_local: true, scheme: PhantomData }
     }
 
     /// Render only when the shell is detected as remote (SSH).
-    pub fn show_on_remote_shell() -> Host<S> {
-        Host { show_on_local: false, scheme: PhantomData }
+    pub fn show_on_remote_shell() -> Self {
+        Self { show_on_local: false, scheme: PhantomData }
+    }
+}
+
+impl<S: HostScheme> Default for Host<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -44,13 +50,13 @@ fn short_hostname() -> Option<String> {
 impl<S: HostScheme> Module for Host<S> {
     fn append_segments(&mut self, powerline: &mut Powerline) {
         let is_remote = utils::is_remote_shell();
-        if self.show_on_local || is_remote {
-            if let Some(host) = short_hostname() {
-                if is_remote {
-                    powerline.add_short_segment(" \u{eb3a} ", Style::simple(S::SSH_FG, S::SSH_BG));
-                }
-                powerline.add_segment(host, Style::nosep(S::HOSTNAME_FG, S::HOSTNAME_BG));
+        if (self.show_on_local || is_remote)
+            && let Some(host) = short_hostname()
+        {
+            if is_remote {
+                powerline.add_short_segment(" \u{eb3a} ", Style::simple(S::SSH_FG, S::SSH_BG));
             }
+            powerline.add_segment(host, Style::nosep(S::HOSTNAME_FG, S::HOSTNAME_BG));
         }
     }
 }

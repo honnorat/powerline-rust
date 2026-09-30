@@ -3,7 +3,9 @@ use std::marker::PhantomData;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-pub struct ReadOnly<S>(PhantomData<S>);
+pub struct ReadOnly<S> {
+    scheme: PhantomData<S>,
+}
 
 pub trait ReadOnlyScheme {
     const READONLY_FG: Color;
@@ -12,8 +14,14 @@ pub trait ReadOnlyScheme {
 }
 
 impl<S: ReadOnlyScheme> ReadOnly<S> {
-    pub fn new() -> ReadOnly<S> {
-        ReadOnly(PhantomData)
+    pub fn new() -> Self {
+        Self { scheme: PhantomData }
+    }
+}
+
+impl<S: ReadOnlyScheme> Default for ReadOnly<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

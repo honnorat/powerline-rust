@@ -15,23 +15,23 @@ pub fn run_git(path: &Path) -> GitStats {
 
     let (mut untracked, mut non_staged, mut conflicted, mut staged) = (0u32, 0u32, 0u32, 0u32);
 
-    if let Ok(platform) = repo.status(Discard) {
-        if let Ok(iter) = platform.into_iter(std::iter::empty::<BString>()) {
-            for item in iter.flatten() {
-                match item {
-                    Item::IndexWorktree(WtItem::Modification { status, .. }) => match status {
-                        EntryStatus::Conflict { .. } => conflicted += 1,
-                        EntryStatus::Change(_) => non_staged += 1,
-                        EntryStatus::IntentToAdd | EntryStatus::NeedsUpdate(_) => {},
-                    },
-                    Item::IndexWorktree(WtItem::DirectoryContents { entry, .. }) => {
-                        if matches!(entry.status, gix::dir::entry::Status::Untracked) {
-                            untracked += 1;
-                        }
-                    },
-                    Item::IndexWorktree(WtItem::Rewrite { .. }) => non_staged += 1,
-                    Item::TreeIndex(_) => staged += 1,
-                }
+    if let Ok(platform) = repo.status(Discard)
+        && let Ok(iter) = platform.into_iter(std::iter::empty::<BString>())
+    {
+        for item in iter.flatten() {
+            match item {
+                Item::IndexWorktree(WtItem::Modification { status, .. }) => match status {
+                    EntryStatus::Conflict { .. } => conflicted += 1,
+                    EntryStatus::Change(_) => non_staged += 1,
+                    EntryStatus::IntentToAdd | EntryStatus::NeedsUpdate(_) => {},
+                },
+                Item::IndexWorktree(WtItem::DirectoryContents { entry, .. }) => {
+                    if matches!(entry.status, gix::dir::entry::Status::Untracked) {
+                        untracked += 1;
+                    }
+                },
+                Item::IndexWorktree(WtItem::Rewrite { .. }) => non_staged += 1,
+                Item::TreeIndex(_) => staged += 1,
             }
         }
     }

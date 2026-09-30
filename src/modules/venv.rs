@@ -5,7 +5,7 @@ use std::path::Path;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
-pub struct VirtualEnv<S: VirtualEnvScheme> {
+pub struct VirtualEnv<S> {
     scheme: PhantomData<S>,
 }
 
@@ -15,8 +15,14 @@ pub trait VirtualEnvScheme {
 }
 
 impl<S: VirtualEnvScheme> VirtualEnv<S> {
-    pub fn new() -> VirtualEnv<S> {
-        VirtualEnv { scheme: PhantomData }
+    pub fn new() -> Self {
+        Self { scheme: PhantomData }
+    }
+}
+
+impl<S: VirtualEnvScheme> Default for VirtualEnv<S> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -32,10 +38,10 @@ impl<S: VirtualEnvScheme> Module for VirtualEnv<S> {
         // Fall back to the raw string in those cases; skip the segment only if both end up empty.
         let Some(venv_path) = venv else { return };
         let raw = Path::new(&venv_path).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or(venv_path);
-        let venv_name = raw.replace(&['(', ')', ',', '\"', '.', ';', ':', '\''][..], "");
+        let venv_name = raw.replace(['(', ')', ',', '"', '.', ';', ':', '\''], "");
         let trimmed = venv_name.trim();
         if !trimmed.is_empty() {
-            powerline.add_segment(format!("[{}]", trimmed), Style::simple(S::PYVENV_FG, S::PYVENV_BG))
+            powerline.add_segment(format!("[{trimmed}]"), Style::simple(S::PYVENV_FG, S::PYVENV_BG))
         }
     }
 }
