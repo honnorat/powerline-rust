@@ -2,6 +2,7 @@ use crate::powerline::Powerline;
 
 mod cmd;
 mod cwd;
+mod drop;
 mod exit_code;
 mod git;
 mod host;
@@ -23,6 +24,7 @@ pub use readonly::{ReadOnly, ReadOnlyScheme};
 #[cfg(feature = "time")]
 pub use time::{Time, TimeScheme};
 pub use user::{User, UserScheme};
+pub use drop::{DropEnv, DropEnvScheme};
 pub use venv::{VirtualEnv, VirtualEnvScheme};
 
 /// One renderable piece of the prompt. Implementations decide internally whether to emit nothing (e.g. `Git`

@@ -11,6 +11,7 @@ fn main() {
 
     prompt.add_module(Host::<SimpleTheme>::new());
     prompt.add_module(User::<SimpleTheme>::new());
+    prompt.add_module(DropEnv::<SimpleTheme>::new());
     prompt.add_module(VirtualEnv::<SimpleTheme>::new());
 
     prompt.add_module(Git::<SimpleTheme>::new());

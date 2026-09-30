@@ -82,3 +82,8 @@ impl VirtualEnvScheme for SimpleTheme {
     const PYVENV_BG: Color = Color(31);
     const PYVENV_FG: Color = Color(254);
 }
+
+impl DropEnvScheme for SimpleTheme {
+    const DROPENV_BG: Color = Color(22);   // very dark green
+    const DROPENV_FG: Color = Color(254);
+}
