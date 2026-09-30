@@ -6,8 +6,8 @@ edition = "2024"
 
 [dependencies]
 uzers = "0.12.2"
-libc = "0.2.186"
-gix = { version = "0.84.0", default-features = false, features = ["status", "revision", "sha1"], optional = true }
+libc = "0.2.189"
+gix = { version = "0.88.0", default-features = false, features = ["status", "revision", "sha1"], optional = true }
 
 [features]
 default = ["bash-shell", "gitoxide"]
