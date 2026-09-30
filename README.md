@@ -38,7 +38,7 @@ rad clone rad://z2FDVfqYkNwYQ3k1uHq3dHSx2xYXm
 With Git:
 
 ```bash
-git clone https://github.com/cirho/powerline-rust
+git clone https://codeberg.org/honnorat/powerline-rust.git
 cd powerline-rust
 # bash shell
 cargo install --path .
