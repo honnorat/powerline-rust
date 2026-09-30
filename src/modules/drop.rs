@@ -1,6 +1,5 @@
 use std::env;
 use std::marker::PhantomData;
-use std::path::Path;
 
 use super::Module;
 use crate::{Color, Powerline, Style};
@@ -21,19 +20,12 @@ impl<S: DropEnvScheme> DropEnv<S> {
 }
 
 impl<S: DropEnvScheme> Module for DropEnv<S> {
-    /// Render the active venv (Python venv, uv, or conda) as `[name]`.
+    /// Render the active `drop run` environment name, in bold. See https://droprun.sh/
     fn append_segments(&mut self, powerline: &mut Powerline) {
-        // DROP_ENV is set by `drop run`. See https://droprun.sh/
-        let dropenv = ["DROP_ENV"]
-            .iter()
-            .find_map(|k| env::var(k).ok());
-        // Fall back to the raw string in those cases; skip the segment only if both end up empty.
-        let Some(dropenv_path) = dropenv else { return };
-        let raw = Path::new(&dropenv_path).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or(dropenv_path);
-        let env_name = raw.replace(&['(', ')', ',', '\"', '.', ';', ':', '\''][..], "");
-        let trimmed = env_name.trim();
+        let Ok(dropenv) = env::var("DROP_ENV") else { return };
+        let trimmed = dropenv.trim();
         if !trimmed.is_empty() {
-            powerline.add_segment(format!("{}", trimmed), Style::simple(S::DROPENV_FG, S::DROPENV_BG).bold())
+            powerline.add_segment(trimmed, Style::simple(S::DROPENV_FG, S::DROPENV_BG).bold())
         }
     }
 }
