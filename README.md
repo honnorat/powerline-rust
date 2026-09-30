@@ -32,7 +32,7 @@ against the `git` subprocess backend.
 To clone this repository on [Radicle](https://radicle.xyz), simply run:
 
 ```bash
-rad clone rad://z2FDVfqYkNwYQ3k1uHq3dHSx2xYXm
+rad clone rad://zPacv2gMSzN5vJnVyqJ5VZUuZ7pV
 ```
 
 With Git:
