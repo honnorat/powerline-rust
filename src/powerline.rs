@@ -10,22 +10,30 @@ pub struct Style {
     pub bg: BgColor,
     pub sep: char,
     pub sep_fg: FgColor,
+    pub bold: bool,
 }
 
 impl Style {
     /// Solid powerline separator (U+E0B0), separator colour = own background.
     pub fn simple(fg: Color, bg: Color) -> Style {
-        Style { fg: fg.into(), bg: bg.into(), sep: '\u{E0B0}', sep_fg: bg.into() }
+        Style { fg: fg.into(), bg: bg.into(), sep: '\u{E0B0}', sep_fg: bg.into(), bold: false }
     }
 
     /// No separator glyph — a space sits between this segment and the next.
     pub fn nosep(fg: Color, bg: Color) -> Style {
-        Style { fg: fg.into(), bg: bg.into(), sep: ' ', sep_fg: bg.into() }
+        Style { fg: fg.into(), bg: bg.into(), sep: ' ', sep_fg: bg.into(), bold: false }
     }
 
     /// Custom separator glyph and colour (used e.g. for the thin CWD divider).
     pub fn special(fg: Color, bg: Color, sep: char, sep_fg: Color) -> Style {
-        Style { fg: fg.into(), bg: bg.into(), sep, sep_fg: sep_fg.into() }
+        Style { fg: fg.into(), bg: bg.into(), sep, sep_fg: sep_fg.into(), bold: false }
+    }
+
+    /// Render this segment's content in bold. The bold attribute is scoped to the content only (turned off
+    /// again right after), so it never bleeds into the separator or the following segment.
+    pub fn bold(mut self) -> Style {
+        self.bold = true;
+        self
     }
 }
 
@@ -62,8 +70,18 @@ impl Powerline {
             let _ = write!(self.buffer, "{}", style.fg);
         }
 
+        // Bold is toggled on then back off around the content itself, so it never leaks into the
+        // separator or a subsequent non-bold segment.
+        if style.bold {
+            let _ = write!(self.buffer, "{}", Bold(true));
+        }
+
         // `let _ = ...` discards the `Result` — writing into a `String` is infallible.
         let _ = if spaces { write!(self.buffer, " {} ", seg) } else { write!(self.buffer, "{}", seg) };
+
+        if style.bold {
+            let _ = write!(self.buffer, "{}", Bold(false));
+        }
 
         self.last_style = Some(style)
     }
@@ -83,16 +101,16 @@ impl Powerline {
         module.append_segments(self)
     }
 
-    /// Mutable access to the last segment's style, so a module can rewrite its trailing separator after the
-    /// fact (used by `Cwd` to upgrade the last thin divider into a solid one).
+    /// Mutable access to the last segment's style, so a module can rewrite its trailing separator
+    /// after the fact (used by `Cwd` to upgrade the last thin divider into a solid one).
     pub fn last_style_mut(&mut self) -> Option<&mut Style> {
         self.last_style.as_mut()
     }
 }
 
 impl fmt::Display for Powerline {
-    /// Flush the buffer, the trailing separator, and a final `Reset` so the shell prompt does not bleed into
-    /// user input.
+    /// Flush the buffer, the trailing separator, and a final `Reset` so the shell prompt does not
+    /// bleed into user input.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.last_style {
             Some(Style { sep_fg, sep, .. }) => write!(f, "{}{}{}{}{}", self.buffer, Reset, sep_fg, sep, Reset),

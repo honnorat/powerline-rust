@@ -13,6 +13,9 @@ pub struct FgColor(u8);
 /// `Display`s the SGR reset sequence (fg + bg back to default).
 pub struct Reset;
 
+/// `Display`s the SGR bold-on (`1`) or bold-off (`22`) sequence.
+pub struct Bold(pub bool);
+
 impl FgColor {
     /// Reinterpret this foreground colour as the same-indexed background.
     pub fn transpose(self) -> BgColor {
@@ -71,6 +74,13 @@ impl std::fmt::Display for BgColor {
 impl std::fmt::Display for FgColor {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{OPEN}{ESC}38;5;{}m{CLOSE}", self.0)
+    }
+}
+
+impl std::fmt::Display for Bold {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let code = if self.0 { 1 } else { 22 };
+        write!(f, "{OPEN}{ESC}{code}m{CLOSE}")
     }
 }
 
