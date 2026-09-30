@@ -19,6 +19,4 @@ gitoxide = ["dep:gix"]
 time = []
 
 [profile.release]
-opt-level = 3
 lto = true
-debug = false

@@ -12,7 +12,7 @@ fn leading_u32(s: &str) -> u32 {
 /// Pull the `ahead N`/`behind N` counts out of git's `[ahead 1, behind 2]` suffix.
 fn extract_ahead_behind(s: &str) -> (u32, u32) {
     // The `+ 1` skips the space that always follows the keyword.
-    let after = |needle: &str| s.find(needle).map(|pos| leading_u32(&s[pos + needle.len() + 1..])).unwrap_or(0);
+    let after = |needle: &str| s.find(needle).and_then(|pos| s.get(pos + needle.len() + 1..)).map_or(0, leading_u32);
     (after("ahead"), after("behind"))
 }
 
@@ -83,4 +83,37 @@ pub fn run_git(_: &Path) -> GitStats {
     }
 
     GitStats { untracked, ahead, behind, non_staged, staged, conflicted, branch_name }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn branch_name_tracked() {
+        assert_eq!(get_branch_name("## main...origin/main"), Some("main"));
+        assert_eq!(get_branch_name("## feat/x...origin/feat/x [ahead 1, behind 2]"), Some("feat/x"));
+    }
+
+    #[test]
+    fn branch_name_untracked() {
+        assert_eq!(get_branch_name("## main"), Some("main"));
+    }
+
+    #[test]
+    fn branch_name_none() {
+        // Detached HEAD and unborn branch both fall back to `get_detached_branch_name`.
+        assert_eq!(get_branch_name("## HEAD (no branch)"), None);
+        assert_eq!(get_branch_name("## No commits yet on main"), None);
+        assert_eq!(get_branch_name(""), None);
+    }
+
+    #[test]
+    fn ahead_behind() {
+        assert_eq!(extract_ahead_behind("[ahead 1, behind 2]"), (1, 2));
+        assert_eq!(extract_ahead_behind("[ahead 12]"), (12, 0));
+        assert_eq!(extract_ahead_behind("[behind 3]"), (0, 3));
+        assert_eq!(extract_ahead_behind("[gone]"), (0, 0));
+        assert_eq!(extract_ahead_behind("[ahead"), (0, 0));
+    }
 }

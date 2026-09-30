@@ -40,7 +40,11 @@ Feature flags (`Cargo.toml`):
 - `time` — enables the `Time` module (uses `libc::strftime`; no extra crate dependency).
 
 Standard cargo workflow otherwise: `cargo build`, `cargo build --release`, `cargo check`, `cargo test`, `cargo
-fmt` (config in `rustfmt.toml`: `max_width=130`, `use_small_heuristics=Max`).
+fmt` (config in `rustfmt.toml`: stable options only, `style_edition=2024`, `max_width=120`,
+`use_small_heuristics=Max`). MSRV is `rust-version` in `Cargo.toml` (1.88, set by let-chains and `gix`).
+
+The `process` git backend's parser tests only compile without `gitoxide`:
+`cargo test --no-default-features --features=bash-shell`.
 
 To try alternate prompt layouts: `cargo run --example minimalistic`.
 
