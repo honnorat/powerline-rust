@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-`powerline-rust` is a fast, statically-configured powerline-style shell prompt generator. It is a fork
-(`version = "0.3.1-mh01"`) of cirho/powerline-rust with extra modules (`jobs`, `time`, ssh-aware host,
-`VIRTUAL_ENV_PROMPT` support, worktree fixes).
+`powerline-rust` is a fast, statically-configured powerline-style shell prompt generator. It is a fork of
+cirho/powerline-rust with extra modules (`jobs`, `time`, `drop`, ssh-aware host, `VIRTUAL_ENV_PROMPT` support,
+worktree fixes).
 
 The core design constraint is **execution speed** (<10ms): there is no runtime configuration, no argument
 parsing for theming, and no dynamic module selection. Customization happens at compile time — users edit
@@ -50,39 +50,38 @@ To try alternate prompt layouts: `cargo run --example minimalistic`.
 
 ## Architecture
 
-Rendering is a single linear pass that appends styled segments to a `String` buffer; there is no intermediate
-segment tree.
+Rendering is a single linear pass appending styled segments to one `String` buffer (no segment tree).
 
-- `Powerline` (`src/powerline.rs`) owns the buffer and the `last_style` from the previously written segment.
-  `write_segment` emits the next segment's background, the previous segment's separator (in the previous bg →
-  next bg transition color), then the foreground and content. The trailing separator and `Reset` are emitted
-  by `Display for Powerline`. **Order of `add_module` calls determines visual order**, and each segment's
-  separator color depends on the next segment — so reordering changes the rendered colors.
-- `Module` trait (`src/modules.rs`) — every module implements `append_segments(&mut self, &mut Powerline)`.
-  Modules decide internally whether to emit nothing (e.g. `Git` returns early if `find_git_dir` fails; `Jobs`
-  skips if `NUM_JOBS=0`).
-- Themes are **compile-time generic parameters**, not runtime values. Each module is `Module<S>` where `S`
-  implements a per-module `…Scheme` trait of `const Color` associated constants (see `GitScheme` in
-  `src/modules/git.rs`). `SimpleTheme` in `src/theme.rs` implements every scheme; custom themes are new
-  zero-sized types implementing the schemes you want to override. Modules carry `PhantomData<S>` — there is no
-  theme object at runtime.
-- `terminal.rs` defines `Color(u8)` (256-color palette indices) and the `FgColor`/`BgColor`/`Reset` newtypes
-  whose `Display` impls produce shell-specific escape sequences gated on the shell feature flag. Adding a new
-  shell means adding a `#[cfg(feature = "…")]` branch in all three `Display` impls.
-- Git backend selection happens via `#[cfg]` aliasing inside `src/modules/git.rs`: both `gitoxide` and
-  `process` submodules expose `run_git(&Path) -> GitStats`, and the parent re-aliases one as `internal`. New
-  git data flows through `GitStats`.
+- `Powerline` (`src/powerline.rs`): a segment's separator is only written when the *next* segment arrives (it
+  needs the next background). So **the order of `add_module` calls determines the colors**, and a segment
+  cannot be edited once added — style it correctly up front (e.g. `Cwd`'s last component gets a solid
+  separator, the others `SEP_THIN`). The trailing separator and `Reset` come from `Display for Powerline`.
+- `Module` trait (`src/modules.rs`): `append_segments(&mut self, &mut Powerline)`. A module decides itself to
+  emit nothing (e.g. `Git` outside a repo, `Jobs` when `NUM_JOBS=0`).
+- Themes are compile-time: `Module<S>` with `S: …Scheme`, a trait of `const Color` items (see `GitScheme`).
+  `SimpleTheme` (`src/theme.rs`) implements all schemes; a custom theme is a zero-sized type overriding some.
+- `terminal.rs`: `Color(u8)` plus `FgColor`/`BgColor`/`Bold`/`Reset` whose `Display` emits shell-specific
+  escapes through the per-feature `OPEN`/`ESC`/`CLOSE` constants. A new shell needs a `#[cfg]` block for them,
+  an update of the mutual-exclusion `compile_error!`s, and a check of `Reset` (zsh is special-cased).
+- Git: `src/modules/git.rs` aliases one backend (`gitoxide` or `process`) as `internal` via `#[cfg]`. Both
+  expose `run_git(&Path) -> GitStats`, given the repo root from `find_git_dir`. New git data goes through
+  `GitStats`.
 
 ## Shell integration contract
 
-The binary expects the previous command's exit code as `argv[1]` and reads these env vars:
+The binary takes the previous command's exit code as `argv[1]` and reads these environment variables:
 
-- `$?` (positional arg) — used by `Cmd` (color of the prompt symbol) and `ExitCode` (numeric segment when
-  non-zero).
-- `NUM_JOBS` — read by `Jobs`; the bash snippet in `README.md` sets it inline because `jobs` is a shell
-  builtin that can't be queried from a child process.
-- `VIRTUAL_ENV_PROMPT` (preferred) / `VIRTUAL_ENV` — read by `VirtualEnv`.
-- `SSH_CLIENT` / `SSH_TTY` — `Host` switches to SSH colors when set.
+- `argv[1]` (`$?`): exit code of the previous command. Shown as a segment when non-zero. `Cmd::new()` also
+  colors the prompt symbol with it, but the shipped binary uses `Cmd::with_status(true)` and ignores it there.
+- `NUM_JOBS`: number of background jobs, shown when non-zero. The shell must set it inline (see the bash
+  snippet in `README.md`) because `jobs` is a builtin a child process cannot query.
+- `VIRTUAL_ENV_PROMPT`, `VIRTUAL_ENV`, `CONDA_ENV_PATH`, `CONDA_DEFAULT_ENV`: name of the active Python/conda
+  environment; the first one set wins, in that order.
+- `DROP_ENV`: name of the active `drop run` environment.
+- `SSH_CLIENT`, `SSH_TTY`, `SSH_CONNECTION`: detect a remote session. Adds an SSH marker to the host segment,
+  and lets `Host`/`User` be shown only when remote (`show_on_remote_shell()`).
+- `PWD`: logical working directory, which keeps symlinked paths (unless `resolve_symlinks`).
+- `HOME`: abbreviates the home directory to `~` in the path.
 
 When changing what the binary reads, update the shell snippets in `README.md` accordingly.
 
