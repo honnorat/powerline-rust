@@ -3,6 +3,12 @@ use std::fmt::{self, Display, Write};
 use crate::modules::Module;
 use crate::terminal::*;
 
+/// Solid powerline separator glyph.
+pub const SEP_SOLID: char = ''; // '\u{E0B0}'
+
+/// Thin powerline separator glyph.
+pub const SEP_THIN: char = ''; // '\u{E0B1}'
+
 /// Foreground/background colours plus the separator glyph emitted *after* this segment.
 #[derive(Clone, Copy)]
 pub struct Style {
@@ -16,7 +22,7 @@ pub struct Style {
 impl Style {
     /// Solid powerline separator (U+E0B0), separator colour = own background.
     pub fn simple(fg: Color, bg: Color) -> Self {
-        Self { fg: fg.into(), bg: bg.into(), sep: '\u{E0B0}', sep_fg: bg.into(), bold: false }
+        Self { fg: fg.into(), bg: bg.into(), sep: SEP_SOLID, sep_fg: bg.into(), bold: false }
     }
 
     /// No separator glyph — a space sits between this segment and the next.
@@ -51,22 +57,15 @@ impl Powerline {
 
     /// Emit the previous segment's separator (now that we know the new bg), then the new segment's fg +
     /// content. `spaces=true` pads with " … ".
-    #[inline(always)]
     fn write_segment<D: Display>(&mut self, seg: D, style: Style, spaces: bool) {
-        let prev_sep_fg = match &self.last_style {
-            Some(prev) => {
-                // Order matters: set new bg first, then draw the old separator on top of it.
-                let _ = write!(self.buffer, "{}{}{}", style.bg, prev.sep_fg, prev.sep);
-                Some(prev.sep_fg)
-            },
-            None => {
-                let _ = write!(self.buffer, "{}", style.bg);
-                None
-            },
-        };
+        // Order matters: set new bg first, then draw the old separator on top of it.
+        let _ = write!(self.buffer, "{}", style.bg);
+        if let Some(prev) = self.last_style {
+            let _ = write!(self.buffer, "{}{}", prev.sep_fg, prev.sep);
+        }
 
         // Skip the fg escape if we just wrote a separator in exactly this colour.
-        if prev_sep_fg != Some(style.fg) {
+        if self.last_style.is_none_or(|prev| prev.sep_fg != style.fg) {
             let _ = write!(self.buffer, "{}", style.fg);
         }
 
@@ -99,12 +98,6 @@ impl Powerline {
     /// Run a module, letting it append zero or more segments.
     pub fn add_module<M: Module>(&mut self, mut module: M) {
         module.append_segments(self)
-    }
-
-    /// Mutable access to the last segment's style, so a module can rewrite its trailing separator
-    /// after the fact (used by `Cwd` to upgrade the last thin divider into a solid one).
-    pub fn last_style_mut(&mut self) -> Option<&mut Style> {
-        self.last_style.as_mut()
     }
 }
 

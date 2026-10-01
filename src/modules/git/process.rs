@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use super::GitStats;
+use super::{GitStats, UNBORN_BRANCH};
 
 /// Parse the leading run of ASCII digits in `s` as a `u32`. Returns 0 if there are none.
 fn leading_u32(s: &str) -> u32 {
@@ -37,9 +37,9 @@ fn get_detached_branch_name() -> String {
     match output {
         Ok(out) if out.status.success() => {
             let name = std::str::from_utf8(&out.stdout).unwrap_or("").lines().next().unwrap_or("");
-            format!("\u{2693}{name}")
+            format!("⚓{name}")
         },
-        _ => "Big Bang".to_owned(),
+        _ => UNBORN_BRANCH.to_owned(),
     }
 }
 

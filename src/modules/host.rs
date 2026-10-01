@@ -54,7 +54,7 @@ impl<S: HostScheme> Module for Host<S> {
             && let Some(host) = short_hostname()
         {
             if is_remote {
-                powerline.add_short_segment(" \u{eb3a} ", Style::simple(S::SSH_FG, S::SSH_BG));
+                powerline.add_short_segment("  ", Style::simple(S::SSH_FG, S::SSH_BG));
             }
             powerline.add_segment(host, Style::nosep(S::HOSTNAME_FG, S::HOSTNAME_BG));
         }

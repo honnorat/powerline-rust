@@ -5,6 +5,9 @@ use std::path::PathBuf;
 use super::Module;
 use crate::{Color, Powerline, Style};
 
+/// Branch name shown when the repository has no readable HEAD (e.g. no commit yet).
+const UNBORN_BRANCH: &str = "Big Bang";
+
 // Pick the git backend at compile time: link `gix` (default) or shell out to `git`.
 //
 // Both submodules expose `run_git(&Path) -> GitStats`; aliasing one as `internal` keeps the call site below
@@ -84,7 +87,7 @@ impl Default for GitStats {
             staged: 0,
             ahead: 0,
             behind: 0,
-            branch_name: "Big Bang".into(),
+            branch_name: UNBORN_BRANCH.into(),
         }
     }
 }
@@ -114,12 +117,11 @@ impl<S: GitScheme> Module for Git<S> {
             1 => powerline.add_segment(symbol, Style::simple(fg, bg)),
             n => powerline.add_segment(format!("{n}{symbol}"), Style::simple(fg, bg)),
         };
-
-        add_elem(stats.ahead, '\u{2B06}', S::GIT_AHEAD_FG, S::GIT_AHEAD_BG);
-        add_elem(stats.behind, '\u{2B07}', S::GIT_BEHIND_FG, S::GIT_BEHIND_BG);
-        add_elem(stats.staged, '\u{2714}', S::GIT_STAGED_FG, S::GIT_STAGED_BG);
-        add_elem(stats.non_staged, '\u{270E}', S::GIT_NOTSTAGED_FG, S::GIT_NOTSTAGED_BG);
+        add_elem(stats.ahead, '⬆', S::GIT_AHEAD_FG, S::GIT_AHEAD_BG);
+        add_elem(stats.behind, '⬇', S::GIT_BEHIND_FG, S::GIT_BEHIND_BG);
+        add_elem(stats.staged, '✔', S::GIT_STAGED_FG, S::GIT_STAGED_BG);
+        add_elem(stats.non_staged, '✎', S::GIT_NOTSTAGED_FG, S::GIT_NOTSTAGED_BG);
         add_elem(stats.untracked, '?', S::GIT_UNTRACKED_FG, S::GIT_UNTRACKED_BG);
-        add_elem(stats.conflicted, '\u{273C}', S::GIT_CONFLICTED_FG, S::GIT_CONFLICTED_BG);
+        add_elem(stats.conflicted, '✼', S::GIT_CONFLICTED_FG, S::GIT_CONFLICTED_BG);
     }
 }

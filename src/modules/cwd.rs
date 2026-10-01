@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 use std::{env, path};
 
 use super::Module;
+use crate::powerline::SEP_THIN;
 use crate::{Color, Powerline, Style};
 
 /// Current working directory, split into one segment per path component.
@@ -57,7 +58,7 @@ impl<S: CwdScheme> Cwd<S> {
             let right = self.wanted_seg_num - left;
 
             labels.extend(cwd.split('/').skip(1).take(left));
-            labels.push("\u{2026}");
+            labels.push("…"); // Horizontal Ellipsis
             labels.extend(cwd.split('/').skip(depth - right + 1));
         } else {
             labels.extend(cwd.split('/').skip(1));
@@ -91,16 +92,17 @@ impl<S: CwdScheme> Module for Cwd<S> {
         }
 
         let home = env::var("HOME").ok();
-        let segment_style = Style::special(path_fg, path_bg, '\u{E0B1}', S::SEPARATOR_FG);
-        for label in self.labels(cwd, home.as_deref()) {
-            powerline.add_segment(label, segment_style);
-        }
+        let thin = Style::special(path_fg, path_bg, SEP_THIN, S::SEPARATOR_FG);
+        let solid = Style::simple(path_fg, path_bg);
 
-        // Upgrade the trailing thin divider to a solid powerline separator, so the boundary against the next
-        // module is rendered normally.
-        if let Some(style) = powerline.last_style_mut() {
-            style.sep = '\u{E0B0}';
-            style.sep_fg = style.bg.transpose();
+        // Thin dividers between components; the last one gets a solid separator so the boundary against the
+        // next module is rendered normally.
+        let labels = self.labels(cwd, home.as_deref());
+        if let Some((last, init)) = labels.split_last() {
+            for label in init {
+                powerline.add_segment(label, thin);
+            }
+            powerline.add_segment(last, solid);
         }
     }
 }
@@ -142,8 +144,8 @@ mod tests {
     #[test]
     fn long_path_is_collapsed() {
         let short = Cwd::<SimpleTheme>::new(5, 4, false);
-        assert_eq!(short.labels("/a/b/c/d/e/f/g", None), ["a", "b", "\u{2026}", "f", "g"]);
-        assert_eq!(short.labels("/home/user/a/b/c/d/e", Some("/home/user")), ["~", "a", "b", "\u{2026}", "d", "e"]);
+        assert_eq!(short.labels("/a/b/c/d/e/f/g", None), ["a", "b", "…", "f", "g"]);
+        assert_eq!(short.labels("/home/user/a/b/c/d/e", Some("/home/user")), ["~", "a", "b", "…", "d", "e"]);
     }
 
     #[test]

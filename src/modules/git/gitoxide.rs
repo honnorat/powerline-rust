@@ -5,7 +5,7 @@ use gix::{
     status::index_worktree::Item as WtItem, status::plumbing::index_as_worktree::EntryStatus,
 };
 
-use super::GitStats;
+use super::{GitStats, UNBORN_BRANCH};
 
 /// Collect working-tree + upstream state using `gix` (no subprocess).
 pub fn run_git(path: &Path) -> GitStats {
@@ -50,7 +50,7 @@ fn head_info(repo: &Repository) -> (String, u32, u32) {
             .head_id()
             .ok()
             .and_then(|id| id.shorten().ok().map(|s| s.to_string()))
-            .unwrap_or_else(|| "Big Bang".into());
+            .unwrap_or_else(|| UNBORN_BRANCH.into());
         return (name, 0, 0);
     };
 
