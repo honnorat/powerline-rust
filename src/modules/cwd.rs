@@ -1,5 +1,6 @@
+use std::env;
 use std::marker::PhantomData;
-use std::{env, path};
+use std::path::PathBuf;
 
 use super::Module;
 use crate::powerline::SEP_THIN;
@@ -69,10 +70,11 @@ impl<S: CwdScheme> Cwd<S> {
 
 impl<S: CwdScheme> Module for Cwd<S> {
     fn append_segments(&mut self, powerline: &mut Powerline) {
+        let pwd = || env::var_os("PWD").map(PathBuf::from);
         let current_dir = if self.resolve_symlinks {
-            env::current_dir().ok().or_else(|| env::var("PWD").ok().map(path::PathBuf::from))
+            env::current_dir().ok().or_else(pwd)
         } else {
-            env::var("PWD").ok().map(path::PathBuf::from).or_else(|| env::current_dir().ok())
+            pwd().or_else(|| env::current_dir().ok())
         };
 
         let (current_dir, path_fg, path_bg) = match current_dir {
@@ -88,7 +90,8 @@ impl<S: CwdScheme> Module for Cwd<S> {
         let cwd: &str = &cwd_cow;
 
         if cwd == "/" {
-            return powerline.add_segment('/', Style::simple(path_fg, path_bg));
+            powerline.add_segment('/', Style::simple(path_fg, path_bg));
+            return;
         }
 
         let home = env::var("HOME").ok();

@@ -1,3 +1,5 @@
+use std::fmt;
+
 /// A 256-colour palette index (xterm-256 / ANSI).
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Color(pub u8);
@@ -18,7 +20,7 @@ pub struct Bold(pub bool);
 
 impl FgColor {
     /// Reinterpret this foreground colour as the same-indexed background.
-    pub fn transpose(self) -> BgColor {
+    pub fn into_bg(self) -> BgColor {
         BgColor(self.0)
     }
 }
@@ -31,7 +33,7 @@ impl From<Color> for FgColor {
 
 impl BgColor {
     /// Reinterpret this background colour as the same-indexed foreground.
-    pub fn transpose(self) -> FgColor {
+    pub fn into_fg(self) -> FgColor {
         FgColor(self.0)
     }
 }
@@ -79,27 +81,27 @@ const ESC: &str = "\x1b[";
 #[cfg(feature = "zsh-shell")]
 const CLOSE: &str = "%}";
 
-impl std::fmt::Display for BgColor {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for BgColor {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{OPEN}{ESC}48;5;{}m{CLOSE}", self.0)
     }
 }
 
-impl std::fmt::Display for FgColor {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for FgColor {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{OPEN}{ESC}38;5;{}m{CLOSE}", self.0)
     }
 }
 
-impl std::fmt::Display for Bold {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for Bold {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let code = if self.0 { 1 } else { 22 };
         write!(f, "{OPEN}{ESC}{code}m{CLOSE}")
     }
 }
 
-impl std::fmt::Display for Reset {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for Reset {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // zsh wraps fg and bg resets separately so each stays width-zero.
         if cfg!(feature = "zsh-shell") {
             f.write_str("%{\x1b[39m%}%{\x1b[49m%}")

@@ -32,8 +32,8 @@ fn get_branch_name(line: &str) -> Option<&str> {
 }
 
 /// Detached HEAD: `git describe` for the closest tag/short hash, prefixed with ⚓.
-fn get_detached_branch_name() -> String {
-    let output = Command::new("git").args(["describe", "--tags", "--always"]).output();
+fn get_detached_branch_name(path: &Path) -> String {
+    let output = Command::new("git").current_dir(path).args(["describe", "--tags", "--always"]).output();
     match output {
         Ok(out) if out.status.success() => {
             let name = std::str::from_utf8(&out.stdout).unwrap_or("").lines().next().unwrap_or("");
@@ -44,8 +44,8 @@ fn get_detached_branch_name() -> String {
 }
 
 /// Shell out to `git status --porcelain -b` and parse its short output.
-pub fn run_git(_: &Path) -> GitStats {
-    let Ok(out) = Command::new("git").args(["status", "--porcelain", "-b"]).output() else {
+pub fn run_git(path: &Path) -> GitStats {
+    let Ok(out) = Command::new("git").current_dir(path).args(["status", "--porcelain", "-b"]).output() else {
         return GitStats::default();
     };
     let stdout = out.stdout;
@@ -64,7 +64,7 @@ pub fn run_git(_: &Path) -> GitStats {
             }
             name.to_owned()
         },
-        None => get_detached_branch_name(),
+        None => get_detached_branch_name(path),
     };
 
     for line in lines {
